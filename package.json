@@ -1,0 +1,32 @@
+{
+  "name": "abstrate",
+  "version": "1.0.0",
+  "description": "Compile templates to abstract syntax trees (ASTs); compatible with Go templates.",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha",
+    "gen": "sh -c 'cd src && echo go.pegjs && pegjs go.pegjs'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jemc/js-abstrate.git"
+  },
+  "keywords": [
+    "template",
+    "compiler",
+    "AST",
+    "Go",
+    "templating",
+    "rendering"
+  ],
+  "author": "Joe Eli McIlvain",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jemc/js-abstrate/issues"
+  },
+  "homepage": "https://github.com/jemc/js-abstrate#readme",
+  "devDependencies": {
+    "mocha": "^6.2.2",
+    "pegjs": "^0.10.0"
+  }
+}
