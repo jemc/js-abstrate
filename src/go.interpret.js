@@ -17,9 +17,13 @@ interpret.term = (term, data, runtime) => {
   }
 }
 
-// A text node simply returns the raw text content (a string).
+// A text node returns the raw text content of the term (a string).
+// The trimLeft/trimRight options specify to trim leading/trailing whitespace.
 interpret.text = (term, data, runtime) => {
-  return term.content
+  let value = term.content
+  if (term.trimLeft) { value = value.replace(/^\s+/, "") }
+  if (term.trimRight) { value = value.replace(/\s+$/, "") }
+  return value
 }
 
 // A root node simply returns the root of the data passed in.
