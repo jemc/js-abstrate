@@ -25,4 +25,15 @@ describe("Abstrate.go.render", () => {
     )
     assert.equal(result, " \t \n 1a \t \n 2b \t \n 3 \t \n ")
   })
+
+  it("renders text blocks based on boolean conditions", () => {
+    const template =
+      "{{if .Formal}}Hello{{else}}Yo{{end}}, World{{if .Exclaim}}!{{end}}"
+
+    result = Abstrate.go.render(template, { Formal: true })
+    assert.equal(result, "Hello, World")
+
+    result = Abstrate.go.render(template, { Formal: false, Exclaim: true })
+    assert.equal(result, "Yo, World!")
+  })
 })

@@ -6,11 +6,7 @@ go.interpret = require("./go.interpret.js")
 
 go.render = (template, data, extraRuntime) => {
   const runtime = Object.assign(go.runtime, extraRuntime)
-  let result = ""
-  go.interpret.terms(go.parse(template), data, runtime).forEach((chunk) => {
-    result = result + chunk.value
-  })
-  return result
+  return go.interpret.body(go.parse(template), data, runtime).value
 }
 
 module.exports = {

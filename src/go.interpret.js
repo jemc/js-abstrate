@@ -3,6 +3,15 @@
 const interpret = {}
 module.exports = interpret
 
+// To interpret a body, interpret the terms then flatten them to a string value.
+interpret.body = (terms, data, runtime) => {
+  let value = ""
+  interpret.terms(terms, data, runtime).forEach((chunk) => {
+    value = value + chunk.value
+  })
+  return { value: value, from: terms }
+}
+
 // To interpret a list of terms, interpret each term and return the list.
 interpret.terms = (terms, data, runtime) => {
   return terms.map((term) => { return interpret.term(term, data, runtime) })
@@ -29,6 +38,15 @@ interpret.text = (term, data, runtime) => {
 // A root node simply returns the root of the data passed in.
 interpret.root = (term, data, runtime) => {
   return data
+}
+
+// An if block interprets either the body or elseBody, based on its term.
+interpret.if = (term, data, runtime) => {
+  if (interpret.term(term.term, data, runtime).value) {
+    return interpret.body(term.body, data, runtime).value
+  } else {
+    return interpret.body(term.elseBody, data, runtime).value
+  }
 }
 
 // A dot node returns the named member of the data passed in.
