@@ -4,9 +4,9 @@ const Abstrate = require("../src")
 describe("Abstrate.go.render", () => {
   it("renders a simple dot construct", () => {
     result = Abstrate.go.render(
-      "{{.X}}",
-      { "X": "example" },
+      "Hello, {{ .Subject }}!",
+      { Subject: "World" },
     )
-    assert.equal(result, "example")
+    assert.equal(result, "Hello, World!")
   })
 })
