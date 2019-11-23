@@ -35,9 +35,38 @@ interpret.text = (node, data, runtime) => {
   return value
 }
 
+// A string node returns the string content as a string.
+// TODO: handle escaping?
+interpret.string = (node, data, runtime) => {
+  return node.content
+}
+
 // A root node simply returns the root of the data passed in.
 interpret.root = (node, data, runtime) => {
   return data
+}
+
+// A declare node introduces a new variable to the runtime, with a value.
+// Throws an error if a variable with this name was already declared.
+// Returns an empty string, so as not to affect the template output.
+interpret.declare = (node, data, runtime) => {
+  const value = interpret.node(node.value, data, runtime).value
+  const variables = runtime['$'] = runtime['$'] || {}
+  if (node.name in variables) {
+    throw new Error("template variable already declared: " + node.name)
+  }
+  variables[node.name] = { value: value, from: node }
+  return ""
+}
+
+// A variable node returns the current value of the named variable.
+interpret.variable = (node, data, runtime) => {
+  const variables = runtime['$'] = runtime['$'] || {}
+  if (node.name in variables) {
+    return variables[node.name].value
+  } else {
+    throw new Error("template variable already declared: " + node.name)
+  }
 }
 
 // An if block interprets either the body or elseBody, based on its term.

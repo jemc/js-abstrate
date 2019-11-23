@@ -36,4 +36,12 @@ describe("Abstrate.go.render", () => {
     result = Abstrate.go.render(template, { Formal: false, Exclaim: true })
     assert.equal(result, "Yo, World!")
   })
+
+  it("renders text blocks based on boolean conditions", () => {
+    result = Abstrate.go.render(
+      "{{ $subject := `World` }}Hello, {{ $subject }}!",
+      {},
+    )
+    assert.equal(result, "Hello, World!")
+  })
 })
