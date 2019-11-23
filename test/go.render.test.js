@@ -40,7 +40,7 @@ describe("Abstrate.go.render", () => {
     const template =
       "{{if .Formal}}Hello{{else}}Yo{{end}}, World{{if .Exclaim}}!{{end}}"
 
-    result = Abstrate.go.render(template, { Formal: true })
+    result = Abstrate.go.render(template, { Formal: true, Exclaim: false })
     assert.equal(result, "Hello, World")
 
     result = Abstrate.go.render(template, { Formal: false, Exclaim: true })
@@ -53,5 +53,32 @@ describe("Abstrate.go.render", () => {
       {},
     )
     assert.equal(result, "Hello, World!")
+  })
+
+  it("throws an error when a variable is not yet declared", () => {
+    assert.throws(() => {
+      Abstrate.go.render(
+        "{{ $x := `x` }}{{ $y }}",
+        {},
+      )
+    }, { message: "template variable not known in this scope: $y" })
+  })
+
+  it("throws an error when a variable is declared more than once", () => {
+    assert.throws(() => {
+      Abstrate.go.render(
+        "{{ $x := `x` }}{{ $y := `y` }}{{ $x := `X` }}",
+        {},
+      )
+    }, { message: "template variable already declared: $x" })
+  })
+
+  it("throws an error when an attribute is not found", () => {
+    assert.throws(() => {
+      Abstrate.go.render(
+        "{{ .Valid1.Bogus1.Bogus2 }}!",
+        { Valid1: { Valid2: true } },
+      )
+    }, { message: 'attribute "Bogus1" not found within: {"Valid2":true}' })
   })
 })

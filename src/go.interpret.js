@@ -53,7 +53,7 @@ interpret.declare = (node, data, runtime) => {
   const value = interpret.node(node.value, data, runtime).value
   const variables = runtime['$'] = runtime['$'] || {}
   if (node.name in variables) {
-    throw new Error("template variable already declared: " + node.name)
+    throw new Error("template variable already declared: $" + node.name)
   }
   variables[node.name] = { value: value, from: node }
   return ""
@@ -65,7 +65,7 @@ interpret.variable = (node, data, runtime) => {
   if (node.name in variables) {
     return variables[node.name].value
   } else {
-    throw new Error("template variable already declared: " + node.name)
+    throw new Error("template variable not known in this scope: $" + node.name)
   }
 }
 
@@ -80,5 +80,11 @@ interpret.if = (node, data, runtime) => {
 
 // A dot node returns the named member of the data passed in.
 interpret.dot = (node, data, runtime) => {
-  return interpret.node(node.of, data, runtime).value[node.name]
+  const object = interpret.node(node.of, data, runtime).value
+  if (typeof object === "object" && node.name in object) {
+    return object[node.name]
+  } else {
+    throw new Error("attribute \"" + node.name + "\" not found within: " +
+      JSON.stringify(object))
+  }
 }
