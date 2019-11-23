@@ -2,12 +2,20 @@ const assert = require("assert")
 const Abstrate = require("../src")
 
 describe("Abstrate.go.render", () => {
-  it("renders a simple dot construct", () => {
+  it("renders a simple dot attribute", () => {
     result = Abstrate.go.render(
       "Hello, {{ .Subject }}!",
       { Subject: "World" },
     )
     assert.equal(result, "Hello, World!")
+  })
+
+  it("renders chains of dot attributes", () => {
+    result = Abstrate.go.render(
+      "{{ .Animal.Name }} is a {{ .Animal.Color.Name }} {{ .Animal.Kind }}.",
+      { Animal: { Name: "Roy", Color: { Name: "red" }, Kind: "rattlesnake" } },
+    )
+    assert.equal(result, "Roy is a red rattlesnake.")
   })
 
   it("renders text blocks with leading whitespace trimmed from them", () => {
