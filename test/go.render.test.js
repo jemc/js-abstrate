@@ -45,7 +45,7 @@ describe("Abstrate.go.render", () => {
     assert.equal(result, "Yo, World!")
   })
 
-  it("renders text blocks based on boolean conditions", () => {
+  it("renders the value of a prior defined variable", () => {
     result = Abstrate.go.render(
       "{{ $subject := `World` }}Hello, {{ $subject }}!",
       {},
