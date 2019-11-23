@@ -1,3 +1,4 @@
+"use strict"
 const assert = require("assert")
 const Abstrate = require("../src")
 
@@ -9,17 +10,23 @@ describe("Abstrate.go.parse", () => {
   // Test cases from https://github.com/golang/go/blob/bbbc6589dfbc05be2bfa59f51c20f9eaa8d0c531/src/text/template/parse/parse_test.go
 
   it("parses an empty template", () => {
-    result = Abstrate.go.parse("")
+    const result = Abstrate.go.parse(
+      ""
+    )
     assert.deepEqual(result, [])
   })
 
   it("parses an otherwise empty template containing only a comment", () => {
-    result = Abstrate.go.parse("{{/*\n\n\n*/}}")
+    const result = Abstrate.go.parse(
+      "{{/*\n\n\n*/}}"
+    )
     assert.deepEqual(result, [])
   })
 
   it("parses whitespace characters in the text", () => {
-    result = Abstrate.go.parse(" \t\n")
+    const result = Abstrate.go.parse(
+      " \t\n"
+    )
     assert.deepEqual(result, [
       {
         "type": "text",
@@ -29,7 +36,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses some text", () => {
-    result = Abstrate.go.parse("some text")
+    const result = Abstrate.go.parse(
+      "some text"
+    )
     assert.deepEqual(result, [
       {
         "type": "text",
@@ -39,7 +48,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses a simple dot construct", () => {
-    result = Abstrate.go.parse("{{.X}}")
+    const result = Abstrate.go.parse(
+      "{{.X}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "dot",
@@ -52,7 +63,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses a dot chain", () => {
-    result = Abstrate.go.parse("{{.X.Y.Z}}")
+    const result = Abstrate.go.parse(
+      "{{.X.Y.Z}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "dot",
@@ -73,7 +86,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses a builtin identifier", () => {
-    result = Abstrate.go.parse("{{printf}}")
+    const result = Abstrate.go.parse(
+      "{{printf}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "builtin",
@@ -83,7 +98,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses an empty variable", () => {
-    result = Abstrate.go.parse("{{$}}")
+    const result = Abstrate.go.parse(
+      "{{$}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "variable",
@@ -93,7 +110,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses a with block that declares a variable then invokes it", () => {
-    result = Abstrate.go.parse("{{with $x := 3}}{{$x 23}}{{end}}")
+    const result = Abstrate.go.parse(
+      "{{with $x := 3}}{{$x 23}}{{end}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "with",
@@ -126,7 +145,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses a dot member of a variable", () => {
-    result = Abstrate.go.parse("{{$.I}}")
+    const result = Abstrate.go.parse(
+      "{{$.I}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "dot",
@@ -140,7 +161,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses a builtin invocation with raw string and number args", () => {
-    result = Abstrate.go.parse("{{printf `%d` 23}}")
+    const result = Abstrate.go.parse(
+      "{{printf `%d` 23}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "invoke",
@@ -163,7 +186,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses a simple pipeline construct", () => {
-    result = Abstrate.go.parse("{{.X|.Y}}")
+    const result = Abstrate.go.parse(
+      "{{.X|.Y}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "pipe",
@@ -186,7 +211,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses a variable declaration whose value comes from a pipeline", () => {
-    result = Abstrate.go.parse("{{$x := .X|.Y}}")
+    const result = Abstrate.go.parse(
+      "{{$x := .X|.Y}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "declare",
@@ -213,7 +240,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses a complex construct of invocations, dots, and pipelines", () => {
-    result = Abstrate.go.parse("{{.X (.Y .Z) (.A | .B .C) (.E)}}")
+    const result = Abstrate.go.parse(
+      "{{.X (.Y .Z) (.A | .B .C) (.E)}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "invoke",
@@ -286,7 +315,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses a dot member of a parenthesized invocation", () => {
-    result = Abstrate.go.parse("{{(.Y .Z).Field}}")
+    const result = Abstrate.go.parse(
+      "{{(.Y .Z).Field}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "dot",
@@ -315,7 +346,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses a simple if block", () => {
-    result = Abstrate.go.parse("{{if .X}}hello{{end}}")
+    const result = Abstrate.go.parse(
+      "{{if .X}}hello{{end}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "if",
@@ -338,7 +371,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses an if block with else block", () => {
-    result = Abstrate.go.parse("{{if .X}}true{{else}}false{{end}}")
+    const result = Abstrate.go.parse(
+      "{{if .X}}true{{else}}false{{end}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "if",
@@ -366,7 +401,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses an if block with else if block", () => {
-    result = Abstrate.go.parse("{{if .X}}true{{else if .Y}}false{{end}}")
+    const result = Abstrate.go.parse(
+      "{{if .X}}true{{else if .Y}}false{{end}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "if",
@@ -405,7 +442,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses an if block with else and else if blocks", () => {
-    result = Abstrate.go.parse("+{{if .X}}X{{else if .Y}}Y{{else if .Z}}Z{{end}}+")
+    const result = Abstrate.go.parse(
+      "+{{if .X}}X{{else if .Y}}Y{{else if .Z}}Z{{end}}+"
+    )
     assert.deepEqual(result, [
       {
         "type": "text",
@@ -468,7 +507,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses a simple range block", () => {
-    result = Abstrate.go.parse("{{range .X}}hello{{end}}")
+    const result = Abstrate.go.parse(
+      "{{range .X}}hello{{end}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "range",
@@ -491,7 +532,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses range block with dot chain term", () => {
-    result = Abstrate.go.parse("{{range .X.Y.Z}}hello{{end}}")
+    const result = Abstrate.go.parse(
+      "{{range .X.Y.Z}}hello{{end}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "range",
@@ -522,7 +565,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses nested range blocks", () => {
-    result = Abstrate.go.parse("{{range .X}}hello{{range .Y}}goodbye{{end}}{{end}}")
+    const result = Abstrate.go.parse(
+      "{{range .X}}hello{{range .Y}}goodbye{{end}}{{end}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "range",
@@ -562,7 +607,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses a range block with else block", () => {
-    result = Abstrate.go.parse("{{range .X}}true{{else}}false{{end}}")
+    const result = Abstrate.go.parse(
+      "{{range .X}}true{{else}}false{{end}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "range",
@@ -590,7 +637,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses a range block whose term is a pipeline", () => {
-    result = Abstrate.go.parse("{{range .X|.M}}true{{else}}false{{end}}")
+    const result = Abstrate.go.parse(
+      "{{range .X|.M}}true{{else}}false{{end}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "range",
@@ -628,7 +677,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses a range block with root value reference inside it", () => {
-    result = Abstrate.go.parse("{{range .SI}}{{.}}{{end}}")
+    const result = Abstrate.go.parse(
+      "{{range .SI}}{{.}}{{end}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "range",
@@ -650,7 +701,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses a range block whose term is a variable declaration", () => {
-    result = Abstrate.go.parse("{{range $x := .SI}}{{.}}{{end}}")
+    const result = Abstrate.go.parse(
+      "{{range $x := .SI}}{{.}}{{end}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "range",
@@ -676,7 +729,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses a range block that declares for both index and value", () => {
-    result = Abstrate.go.parse("{{range $x, $y := .SI}}{{.}}{{end}}")
+    const result = Abstrate.go.parse(
+      "{{range $x, $y := .SI}}{{.}}{{end}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "range",
@@ -708,7 +763,9 @@ describe("Abstrate.go.parse", () => {
   it("parses an... imaginary number literal?") // TODO: {{range .SI 1 -3.2i true false 'a' nil}}{{end}}
 
   it("parses a range block over an invocation with many literal args", () => {
-    result = Abstrate.go.parse("{{range .SI 1 -3.2 true false 'a' nil}}{{end}}")
+    const result = Abstrate.go.parse(
+      "{{range .SI 1 -3.2 true false 'a' nil}}{{end}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "range",
@@ -755,7 +812,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses a template invocation", () => {
-    result = Abstrate.go.parse("{{template `x`}}")
+    const result = Abstrate.go.parse(
+      "{{template `x`}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "invoke",
@@ -774,7 +833,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses a template invocation with additional args", () => {
-    result = Abstrate.go.parse("{{template `x` .Y}}")
+    const result = Abstrate.go.parse(
+      "{{template `x` .Y}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "invoke",
@@ -800,7 +861,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses a simple with block", () => {
-    result = Abstrate.go.parse("{{with .X}}hello{{end}}")
+    const result = Abstrate.go.parse(
+      "{{with .X}}hello{{end}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "with",
@@ -823,7 +886,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses a with block with else block", () => {
-    result = Abstrate.go.parse("{{with .X}}hello{{else}}goodbye{{end}}")
+    const result = Abstrate.go.parse(
+      "{{with .X}}hello{{else}}goodbye{{end}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "with",
@@ -851,7 +916,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses leading text with trimRight", () => {
-    result = Abstrate.go.parse("x \r\n\t{{- 3}}")
+    const result = Abstrate.go.parse(
+      "x \r\n\t{{- 3}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "text",
@@ -866,7 +933,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses trailing text with trimLeft", () => {
-    result = Abstrate.go.parse("{{3 -}}\n\n\ty")
+    const result = Abstrate.go.parse(
+      "{{3 -}}\n\n\ty"
+    )
     assert.deepEqual(result, [
       {
         "type": "number",
@@ -881,7 +950,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses leading and trailing text with trimRight and trimLeft", () => {
-    result = Abstrate.go.parse("x \r\n\t{{- 3 -}}\n\n\ty")
+    const result = Abstrate.go.parse(
+      "x \r\n\t{{- 3 -}}\n\n\ty"
+    )
     assert.deepEqual(result, [
       {
         "type": "text",
@@ -901,7 +972,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses leading and trailing text with whitespace in the block", () => {
-    result = Abstrate.go.parse("x\n{{-  3   -}}\ny")
+    const result = Abstrate.go.parse(
+      "x\n{{-  3   -}}\ny"
+    )
     assert.deepEqual(result, [
       {
         "type": "text",
@@ -921,7 +994,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses leading text with trimRight followed by a comment", () => {
-    result = Abstrate.go.parse("x \r\n\t{{- /* hi */}}")
+    const result = Abstrate.go.parse(
+      "x \r\n\t{{- /* hi */}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "text",
@@ -932,7 +1007,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses trailing text with trimLeft preceded by a comment", () => {
-    result = Abstrate.go.parse("{{/* hi */ -}}\n\n\ty")
+    const result = Abstrate.go.parse(
+      "{{/* hi */ -}}\n\n\ty"
+    )
     assert.deepEqual(result, [
       {
         "type": "text",
@@ -943,7 +1020,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses a block block", () => {
-    result = Abstrate.go.parse("{{block \"foo\" .}}hello{{end}}")
+    const result = Abstrate.go.parse(
+      "{{block \"foo\" .}}hello{{end}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "block",
@@ -970,7 +1049,9 @@ describe("Abstrate.go.parse", () => {
   })
 
   it("parses a variable invocation with a positive number literal arg", () => {
-    result = Abstrate.go.parse("{{$x:=.}}{{$x +2}}")
+    const result = Abstrate.go.parse(
+      "{{$x:=.}}{{$x +2}}"
+    )
     assert.deepEqual(result, [
       {
         "type": "declare",
@@ -999,7 +1080,9 @@ describe("Abstrate.go.parse", () => {
   // Test cases from https://github.com/golang/go/blob/94e9a5e19b831504eca2b7202b78d1a48c4be547/src/html/template/example_test.go
 
   it("parses a simple example with HTML text content", () => {
-    result = Abstrate.go.parse(`
+    const result = Abstrate.go.parse(
+            
+    `
     <!DOCTYPE html>
     <html>
       <head>

@@ -1,9 +1,10 @@
+"use strict"
 const assert = require("assert")
 const Abstrate = require("../src")
 
 describe("Abstrate.go.render", () => {
   it("renders a simple dot attribute", () => {
-    result = Abstrate.go.render(
+    const result = Abstrate.go.render(
       "Hello, {{ .Subject }}!",
       { Subject: "World" },
     )
@@ -11,7 +12,7 @@ describe("Abstrate.go.render", () => {
   })
 
   it("renders chains of dot attributes", () => {
-    result = Abstrate.go.render(
+    const result = Abstrate.go.render(
       "{{ .Animal.Name }} is a {{ .Animal.Color.Name }} {{ .Animal.Kind }}.",
       { Animal: { Name: "Roy", Color: { Name: "red" }, Kind: "rattlesnake" } },
     )
@@ -19,7 +20,7 @@ describe("Abstrate.go.render", () => {
   })
 
   it("renders text blocks with leading whitespace trimmed from them", () => {
-    result = Abstrate.go.render(
+    const result = Abstrate.go.render(
       " \t \n 1 \t \n {{ .A -}} \t \n 2 \t \n {{ .B -}} \t \n 3 \t \n ",
       { A: "a", B: "b" },
     )
@@ -27,7 +28,7 @@ describe("Abstrate.go.render", () => {
   })
 
   it("renders text blocks with trailing whitespace trimmed from them", () => {
-    result = Abstrate.go.render(
+    const result = Abstrate.go.render(
       " \t \n 1 \t \n {{- .A }} \t \n 2 \t \n {{- .B }} \t \n 3 \t \n ",
       { A: "a", B: "b" },
     )
@@ -35,6 +36,7 @@ describe("Abstrate.go.render", () => {
   })
 
   it("renders text blocks based on boolean conditions", () => {
+    var result
     const template =
       "{{if .Formal}}Hello{{else}}Yo{{end}}, World{{if .Exclaim}}!{{end}}"
 
@@ -46,7 +48,7 @@ describe("Abstrate.go.render", () => {
   })
 
   it("renders the value of a prior defined variable", () => {
-    result = Abstrate.go.render(
+    const result = Abstrate.go.render(
       "{{ $subject := `World` }}Hello, {{ $subject }}!",
       {},
     )
