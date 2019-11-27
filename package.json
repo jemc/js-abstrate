@@ -27,6 +27,7 @@
   "homepage": "https://github.com/jemc/js-abstrate#readme",
   "devDependencies": {
     "mocha": "^6.2.2",
-    "pegjs": "^0.10.0"
+    "pegjs": "^0.10.0",
+    "semantic-release": "^15.13.31"
   }
 }

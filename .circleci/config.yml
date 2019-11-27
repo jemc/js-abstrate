@@ -1,0 +1,52 @@
+version: 2
+jobs:
+  test_node_8:
+    docker:
+      - image: circleci/node:8
+    steps: &test_steps
+      - checkout
+
+      # Restore the dependency cache, if possible.
+      - restore_cache:
+          keys:
+            # when lock file changes, use increasingly general patterns to restore cache
+            - node-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
+            - node-v1-{{ .Branch }}-
+            - node-v1-
+
+      # Install dependencies.
+      - run: npm install
+
+      # Save the cache.
+      - save_cache:
+          paths:
+            - ~/usr/local/lib/node_modules  # location depends on npm version
+          key: node-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}
+
+      # Run the test suite.
+      - run: npm run test
+
+  test_node_6:
+    docker:
+      - image: circleci/node:6
+    steps: *test_steps
+
+  release:
+    docker:
+      - image: circleci/node:8
+    steps:
+      - checkout
+      - run: npm install
+      - run: npx semantic-release --dry-run=true
+
+workflows:
+  version: 2
+  test_and_release:
+    # Run the test jobs first, then the release only when all the test jobs are successful
+    jobs:
+      - test_node_8
+      - test_node_6
+      - release:
+          requires:
+            - test_node_8
+            - test_node_6
