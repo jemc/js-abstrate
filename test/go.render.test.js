@@ -129,6 +129,28 @@ describe("Abstrate.go.render", () => {
     }, { message: "template variable not known in this scope: $x" })
   })
 
+  it("pipes the left side into an invocation of the right side", () => {
+    const testFn = (arg) => { return `okay: ${arg}` }
+
+    const result = Abstrate.go.render(
+      "{{ `example` | testFn }}",
+      {},
+      { testFn: testFn },
+    )
+    assert.equal(result, "okay: example")
+  })
+
+  it("pipes the left as a final arg when the right already invokes", () => {
+    const testFn = (...args) => { return `okay: ${JSON.stringify(args)}` }
+
+    const result = Abstrate.go.render(
+      "{{ `three` | testFn `one` `two` }}",
+      {},
+      { testFn: testFn },
+    )
+    assert.equal(result, "okay: [\"one\",\"two\",\"three\"]")
+  })
+
   it("supports builtin immediate values like true and false", () => {
     const testFn = (trueValue, falseValue, nilValue) => {
       assert.equal(trueValue, true)
@@ -136,7 +158,7 @@ describe("Abstrate.go.render", () => {
       assert.equal(nilValue, null)
       return "okay"
     }
-    
+
     const result = Abstrate.go.render(
       "{{ testFn true false nil }}",
       {},
@@ -150,7 +172,7 @@ describe("Abstrate.go.render", () => {
       assert.equal(numberValue, 36)
       return `okay: ${numberValue}`
     }
-    
+
     const result = Abstrate.go.render(
       "{{ testFn 36 }}",
       {},

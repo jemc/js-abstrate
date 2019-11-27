@@ -156,3 +156,24 @@ interpret.invoke = (node, data, runtime) => {
       JSON.stringify(node))
   }
 }
+
+// A pipe node is syntax sugar for an invoke node.
+// When the right side is an invoke, the left side is added as another arg.
+// Otherwise, the right side becomes the target for the invoke.
+interpret.pipe = (node, data, runtime) => {
+  if (node.to.type === "invoke") {
+    const invoke = node.to
+    return interpret.invoke({
+      type: "invoke",
+      target: invoke.target,
+      args: [...invoke.args, node.from],
+    }, data, runtime)
+  } else {
+    return interpret.invoke({
+      type: "invoke",
+      target: node.to,
+      args: [node.from],
+    }, data, runtime)
+  }
+}
+
