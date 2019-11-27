@@ -145,6 +145,20 @@ describe("Abstrate.go.render", () => {
     assert.equal(result, "okay")
   })
 
+  it("supports number values", () => {
+    const testFn = (numberValue) => {
+      assert.equal(numberValue, 36)
+      return `okay: ${numberValue}`
+    }
+    
+    const result = Abstrate.go.render(
+      "{{ testFn 36 }}",
+      {},
+      { testFn: testFn },
+    )
+    assert.equal(result, "okay: 36")
+  })
+
   it("invokes eq to test equality of strings", () => {
     var result
     const template =

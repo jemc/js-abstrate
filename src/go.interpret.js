@@ -36,6 +36,11 @@ interpret.text = (node, data, runtime) => {
   return value
 }
 
+// A number node returns the number value as a number.
+interpret.number = (node, data, runtime) => {
+  return node.value
+}
+
 // A string node returns the string content as a string.
 // TODO: handle escaping?
 interpret.string = (node, data, runtime) => {
