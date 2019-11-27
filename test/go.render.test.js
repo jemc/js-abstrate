@@ -145,4 +145,32 @@ describe("Abstrate.go.render", () => {
   })
 
   it("is fully compatible with how the real Go `eq` function works")
+
+  it("invokes printf to concatenate some strings", () => {
+    const result = Abstrate.go.render(
+      "{{ printf `I guess %s %s %s...` .Word1 .Word2 .Word3 }}",
+      { Word1: "this", Word2: "is", Word3: "fine" },
+    )
+    assert.equal(result, "I guess this is fine...")
+  })
+
+  it("throws an error when invoking printf with too few arguments", () => {
+    assert.throws(() => {
+      Abstrate.go.render(
+        "{{ printf `%s %s %s` `one` `two` }}",
+        {},
+      )
+    }, { message: /too few arguments passed to printf/ })
+  })
+
+  it("throws an error when invoking printf with too many arguments", () => {
+    assert.throws(() => {
+      Abstrate.go.render(
+        "{{ printf `%s %s %s` `one` `two` `three` `four` }}",
+        {},
+      )
+    }, { message: /too many arguments passed to printf/ })
+  })
+
+  it("is fully compatible with how the real Go `printf` function works")
 })
