@@ -47,6 +47,34 @@ describe("Abstrate.go.render", () => {
     assert.equal(result, "Yo, World!")
   })
 
+  it("renders text blocks in a range-based loop", () => {
+    var result
+    const template =
+      "Animals:\n{{ range .Animals }}- {{ .Color }} {{ .Kind }}\n{{ end }}"
+
+    result = Abstrate.go.render(template, { Animals: [
+      { Color: "red", Kind: "fox" },
+      { Color: "green", Kind: "iguana" },
+      { Color: "blue", Kind: "fish" },
+    ] })
+    assert.equal(result, "Animals:\n- red fox\n- green iguana\n- blue fish\n")
+
+    result = Abstrate.go.render(template, { Animals: [] })
+    assert.equal(result, "Animals:\n")
+  })
+
+  it("renders an else block in a range loop when no items are present", () => {
+    var result
+    const template =
+      "{{ range .Chars }}{{ . }}{{ else }}?{{ end }}!"
+
+    result = Abstrate.go.render(template, { Chars: ["Y", "a", "y"] })
+    assert.equal(result, "Yay!")
+
+    result = Abstrate.go.render(template, { Chars: [] })
+    assert.equal(result, "?!")
+  })
+
   it("renders the value of a prior defined variable", () => {
     const result = Abstrate.go.render(
       "{{ $subject := `World` }}Hello, {{ $subject }}!",

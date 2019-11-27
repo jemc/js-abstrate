@@ -6,10 +6,10 @@ module.exports = interpret
 // To interpret a body, interpret the nodes then flatten them to a string value.
 interpret.body = (nodes, data, runtimeProto) => {
   const runtime = Object.assign({}, runtimeProto)
-  let value = ""
-  interpret.nodes(nodes, data, runtime).forEach((chunk) => {
-    value = value + chunk.value
-  })
+  const value =
+    interpret.nodes(nodes, data, runtime).reduce((accum, chunk) => {
+      return accum + chunk.value
+    }, "")
   return { value: value, from: nodes }
 }
 
@@ -90,6 +90,30 @@ interpret.if = (node, data, runtime) => {
     return interpret.body(node.body, data, runtime).value
   } else {
     return interpret.body(node.elseBody, data, runtime).value
+  }
+}
+
+// A range block interprets the body once for each element in the term.
+// The "root" data within the block context is the value of the element.
+// If there are zero elements, the elseBody is interpreted instead.
+// Throws an error if the term is not an array.
+interpret.range = (node, data, runtime) => {
+  const list = interpret.node(node.term, data, runtime).value
+  if (Array.isArray(list)) {
+    if (list.length > 0) {
+      const value =
+        list.map((element) => {
+          return interpret.body(node.body, element, runtime).value
+        }).reduce((accum, child) => {
+          return accum + child
+        }, "")
+      return value
+    } else {
+      return interpret.body(node.elseBody, data, runtime).value
+    }
+  } else {
+    throw new Error("can't range over a value that is not an array: " +
+      JSON.stringify(list))
   }
 }
 
