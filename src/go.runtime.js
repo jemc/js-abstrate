@@ -4,6 +4,11 @@ const PRIVATE = {}
 const runtime = {}
 module.exports = runtime
 
+// Some constant immediate values that can be referenced.
+runtime.true = true
+runtime.false = false
+runtime.nil = null
+
 // Returns true if the left and right arguments are equal.
 runtime.eq = (left, right) => {
   return left === right

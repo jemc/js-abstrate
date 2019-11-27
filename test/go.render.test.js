@@ -129,6 +129,22 @@ describe("Abstrate.go.render", () => {
     }, { message: "template variable not known in this scope: $x" })
   })
 
+  it("supports builtin immediate values like true and false", () => {
+    const testFn = (trueValue, falseValue, nilValue) => {
+      assert.equal(trueValue, true)
+      assert.equal(falseValue, false)
+      assert.equal(nilValue, null)
+      return "okay"
+    }
+    
+    const result = Abstrate.go.render(
+      "{{ testFn true false nil }}",
+      {},
+      { testFn: testFn },
+    )
+    assert.equal(result, "okay")
+  })
+
   it("invokes eq to test equality of strings", () => {
     var result
     const template =
