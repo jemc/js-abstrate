@@ -3,7 +3,7 @@ jobs:
   test_node_8:
     docker:
       - image: circleci/node:8
-    steps: &test_steps
+    steps:
       - checkout
 
       # Restore the dependency cache, if possible.
@@ -26,11 +26,6 @@ jobs:
       # Run the test suite.
       - run: npm run test
 
-  test_node_6:
-    docker:
-      - image: circleci/node:6
-    steps: *test_steps
-
   release:
     docker:
       - image: circleci/node:8
@@ -42,11 +37,6 @@ jobs:
 workflows:
   version: 2
   test_and_release:
-    # Run the test jobs first, then the release only when all the test jobs are successful
     jobs:
       - test_node_8
-      - test_node_6
-      - release:
-          requires:
-            - test_node_8
-            - test_node_6
+      - release: { requires: [test_node_8] }

@@ -160,7 +160,7 @@ describe("Abstrate.go.render", () => {
         "{{ printf `%s %s %s` `one` `two` }}",
         {},
       )
-    }, { message: /too few arguments passed to printf/ })
+    }, /too few arguments passed to printf/)
   })
 
   it("throws an error when invoking printf with too many arguments", () => {
@@ -169,7 +169,7 @@ describe("Abstrate.go.render", () => {
         "{{ printf `%s %s %s` `one` `two` `three` `four` }}",
         {},
       )
-    }, { message: /too many arguments passed to printf/ })
+    }, /too many arguments passed to printf/)
   })
 
   it("is fully compatible with how the real Go `printf` function works")
