@@ -100,4 +100,21 @@ describe("Abstrate.go.render", () => {
       )
     }, { message: "template variable not known in this scope: $x" })
   })
+
+  it("invokes eq to test equality of strings", () => {
+    var result
+    const template =
+      "{{if eq .State `FINE`}}This is fine...{{else}}What?{{end}}"
+
+    result = Abstrate.go.render(template, { State: "FINE" })
+    assert.equal(result, "This is fine...")
+
+    result = Abstrate.go.render(template, { State: "fine" })
+    assert.equal(result, "What?")
+
+    result = Abstrate.go.render(template, { State: "something else" })
+    assert.equal(result, "What?")
+  })
+
+  it("is fully compatible with how the real Go `eq` function works")
 })

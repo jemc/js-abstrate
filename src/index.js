@@ -1,7 +1,7 @@
 "use strict";
 
 const go = require("./go.js")
-go.runtime = { bar: "baz" }
+go.runtime = require("./go.runtime.js")
 go.interpret = require("./go.interpret.js")
 
 go.render = (template, data, extraRuntime) => {

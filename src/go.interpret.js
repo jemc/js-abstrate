@@ -103,3 +103,27 @@ interpret.dot = (node, data, runtime) => {
       JSON.stringify(object))
   }
 }
+
+// A builtin node retrieves a given named thing from the runtime.
+interpret.builtin = (node, data, runtime) => {
+  if (node.name in runtime) {
+    return runtime[node.name]
+  } else {
+    throw new Error("builtin \"" + node.name + "\" not found within runtime: " +
+      JSON.stringify(runtime))
+  }
+}
+
+// An invoke node calls its target as a function with the given args' values.
+interpret.invoke = (node, data, runtime) => {
+  const target = interpret.node(node.target, data, runtime).value
+  if (typeof target === "function") {
+    const args = node.args.map((arg) => {
+      return interpret.node(arg, data, runtime).value
+    })
+    return Reflect.apply(target, undefined, args)
+  } else {
+    throw new Error("can't invoke because the target is not a function:" +
+      JSON.stringify(node))
+  }
+}
