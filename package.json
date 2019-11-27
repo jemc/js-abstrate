@@ -1,6 +1,6 @@
 {
   "name": "abstrate",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Compile templates to abstract syntax trees (ASTs); compatible with Go templates.",
   "main": "index.js",
   "scripts": {
