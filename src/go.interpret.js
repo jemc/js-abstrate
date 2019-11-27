@@ -4,7 +4,8 @@ const interpret = {}
 module.exports = interpret
 
 // To interpret a body, interpret the nodes then flatten them to a string value.
-interpret.body = (nodes, data, runtime) => {
+interpret.body = (nodes, data, runtimeProto) => {
+  const runtime = Object.assign({}, runtimeProto)
   let value = ""
   interpret.nodes(nodes, data, runtime).forEach((chunk) => {
     value = value + chunk.value
@@ -56,6 +57,20 @@ interpret.declare = (node, data, runtime) => {
     throw new Error("template variable already declared: $" + node.name)
   }
   variables[node.name] = { value: value, from: node }
+  return ""
+}
+
+// An assign node sets a new value for a variable already known to the runtime.
+// Throws an error if no variable with this name was already declared.
+// Returns an empty string, so as not to affect the template output.
+interpret.assign = (node, data, runtime) => {
+  const value = interpret.node(node.value, data, runtime).value
+  const variables = runtime['$'] = runtime['$'] || {}
+  if (node.name in variables) {
+    variables[node.name].value = value
+  } else {
+    throw new Error("template variable not known in this scope: $" + node.name)
+  }
   return ""
 }
 

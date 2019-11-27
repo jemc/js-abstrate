@@ -81,4 +81,23 @@ describe("Abstrate.go.render", () => {
       )
     }, { message: 'attribute "Bogus1" not found within: {"Valid2":true}' })
   })
+
+  it("allows re-assigning a variable to a new value", () => {
+    const result = Abstrate.go.render(
+      `{{ $subject := "World" -}}
+      {{ if .Universal }}{{ $subject = "Universe" }}{{ end -}}
+      Hello, {{ $subject }}!`,
+      { Universal: true },
+    )
+    assert.equal(result, "Hello, Universe!")
+  })
+
+  it("throws an error when assigning to a variable not yet declared", () => {
+    assert.throws(() => {
+      Abstrate.go.render(
+        "{{ $x = `x` }}",
+        {},
+      )
+    }, { message: "template variable not known in this scope: $x" })
+  })
 })

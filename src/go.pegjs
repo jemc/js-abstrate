@@ -71,6 +71,7 @@ substbody
   / rangeblock
   / blockblock
   / declare
+  / assign
   / pipeline
   / invalid
 
@@ -149,6 +150,10 @@ blockend "end"
 declare "variable declaration"
   = "$" name:ident ws ":=" value:expr
     { return { type: "declare", name: name, value: value } }
+
+assign "variable assignation"
+  = "$" name:ident ws "=" value:expr
+    { return { type: "assign", name: name, value: value } }
 
 variable
   = "$" name:(ident / "")
