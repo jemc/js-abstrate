@@ -225,4 +225,10 @@ describe("Abstrate.go.render", () => {
   })
 
   it("is fully compatible with how the real Go `printf` function works")
+
+  it("doesn't keep around the same runtime with variables", () => {
+    const vars = { Example1: `one` }
+    Abstrate.go.render("{{ $Example2 := `two` }}", {}, { $: vars })
+    assert.equal(Abstrate.go.runtime.$, undefined)
+  })
 })
