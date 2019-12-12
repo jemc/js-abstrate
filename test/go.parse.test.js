@@ -1145,4 +1145,24 @@ describe("Abstrate.go.parse", () => {
       }
     ])
   })
+
+  it("parses the example from the README", () => {
+    const result = Abstrate.go.parse(
+      "{{ $Greeting }}, {{ exclaim .Object }}"
+    )
+    assert.deepEqual(result, [
+      { "type": "variable", "name": "Greeting" },
+      { "type": "text", "content": ", " },
+      { "type": "invoke",
+        "target": { "name": "exclaim", "type": "builtin" },
+        "args": [
+          {
+            "name": "Object",
+            "of": { "type": "root" },
+            "type": "dot",
+          },
+        ],
+      }
+    ])
+  })
 })

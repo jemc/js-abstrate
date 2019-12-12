@@ -135,7 +135,7 @@ describe("Abstrate.go.render", () => {
     const result = Abstrate.go.render(
       "{{ `example` | testFn }}",
       {},
-      { testFn: testFn },
+      { functions: { testFn: testFn } },
     )
     assert.equal(result, "okay: example")
   })
@@ -146,7 +146,7 @@ describe("Abstrate.go.render", () => {
     const result = Abstrate.go.render(
       "{{ `three` | testFn `one` `two` }}",
       {},
-      { testFn: testFn },
+      { functions: { testFn: testFn } },
     )
     assert.equal(result, "okay: [\"one\",\"two\",\"three\"]")
   })
@@ -162,7 +162,7 @@ describe("Abstrate.go.render", () => {
     const result = Abstrate.go.render(
       "{{ testFn true false nil }}",
       {},
-      { testFn: testFn },
+      { functions: { testFn: testFn } },
     )
     assert.equal(result, "okay")
   })
@@ -176,7 +176,7 @@ describe("Abstrate.go.render", () => {
     const result = Abstrate.go.render(
       "{{ testFn 36 }}",
       {},
-      { testFn: testFn },
+      { functions: { testFn: testFn } },
     )
     assert.equal(result, "okay: 36")
   })
@@ -226,9 +226,22 @@ describe("Abstrate.go.render", () => {
 
   it("is fully compatible with how the real Go `printf` function works")
 
-  it("doesn't keep around the same runtime with variables", () => {
-    const vars = { Example1: `one` }
-    Abstrate.go.render("{{ $Example2 := `two` }}", {}, { $: vars })
-    assert.equal(Abstrate.go.runtime.$, undefined)
+  it("mutates the variables object to show the results of execution", () => {
+    const vars = { Example1: "one" }
+    Abstrate.go.render("{{ $Example2 := `two` }}", {}, { variables: vars })
+    assert.equal(vars["Example1"], "one")
+    assert.equal(vars["Example2"], "two")
+  })
+
+  it("renders the example from the README", () => {
+    const result = Abstrate.go.render(
+      "{{ $Greeting }}, {{ exclaim .Object }}",
+      { Object: "World"},
+      {
+        variables: { Greeting: "Hello" },
+        functions: { exclaim: (string) => { return string + "!" } },
+      }
+    )
+    assert.equal(result, "Hello, World!")
   })
 })

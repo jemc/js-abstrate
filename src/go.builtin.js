@@ -1,22 +1,22 @@
 "use strict"
 
 const PRIVATE = {}
-const runtime = {}
-module.exports = runtime
+const builtin = {}
+module.exports = builtin
 
 // Some constant immediate values that can be referenced.
-runtime.true = true
-runtime.false = false
-runtime.nil = null
+builtin.true = true
+builtin.false = false
+builtin.nil = null
 
 // Returns true if the left and right arguments are equal.
-runtime.eq = (left, right) => {
+builtin.eq = (left, right) => {
   return left === right
 }
 
 // Returns a string, interpolating the arguments according to the format string.
 // See docs at https://golang.org/pkg/fmt/
-runtime.printf = (format, ...args) => {
+builtin.printf = (format, ...args) => {
   const pattern = PRIVATE.printfFormatSpecPattern()
   let result = ""
   let priorIndex = 0

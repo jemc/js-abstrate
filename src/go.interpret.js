@@ -57,11 +57,11 @@ interpret.root = (node, data, runtime) => {
 // Returns an empty string, so as not to affect the template output.
 interpret.declare = (node, data, runtime) => {
   const value = interpret.node(node.value, data, runtime).value
-  const variables = runtime['$'] = runtime['$'] || {}
+  const variables = runtime.variables = runtime.variables || {}
   if (node.name in variables) {
     throw new Error("template variable already declared: $" + node.name)
   }
-  variables[node.name] = { value: value, from: node }
+  variables[node.name] = value
   return ""
 }
 
@@ -70,9 +70,9 @@ interpret.declare = (node, data, runtime) => {
 // Returns an empty string, so as not to affect the template output.
 interpret.assign = (node, data, runtime) => {
   const value = interpret.node(node.value, data, runtime).value
-  const variables = runtime['$'] = runtime['$'] || {}
+  const variables = runtime.variables = runtime.variables || {}
   if (node.name in variables) {
-    variables[node.name].value = value
+    variables[node.name] = value
   } else {
     throw new Error("template variable not known in this scope: $" + node.name)
   }
@@ -81,9 +81,9 @@ interpret.assign = (node, data, runtime) => {
 
 // A variable node returns the current value of the named variable.
 interpret.variable = (node, data, runtime) => {
-  const variables = runtime['$'] = runtime['$'] || {}
+  const variables = runtime.variables = runtime.variables || {}
   if (node.name in variables) {
-    return variables[node.name].value
+    return variables[node.name]
   } else {
     throw new Error("template variable not known in this scope: $" + node.name)
   }
@@ -135,8 +135,8 @@ interpret.dot = (node, data, runtime) => {
 
 // A builtin node retrieves a given named thing from the runtime.
 interpret.builtin = (node, data, runtime) => {
-  if (node.name in runtime) {
-    return runtime[node.name]
+  if (node.name in runtime.builtin) {
+    return runtime.builtin[node.name]
   } else {
     throw new Error("builtin \"" + node.name + "\" not found within runtime: " +
       JSON.stringify(runtime))
