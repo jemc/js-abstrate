@@ -55,5 +55,3 @@ The following sections describe known limitations of this library. Given some ti
 - *No HTML-specific escaping/safety rules*. Go uses a rather complicated [context-specific model](https://golang.org/pkg/html/template/#hdr-Contexts) for escaping HTML templates, which has different escaping behavior based on where the templating insertions appear in the HTML syntax, even down to treating certain HTML attribute names as special cases. At this time, Abstrate only supports "text" mode of templates from Go, in which this context-specific escaping is not present.
 
 - *Some standard runtime functions are missing*. Go defines [a set of standard/predefined runtime functions for execution](https://golang.org/pkg/text/template/#hdr-Functions), but at this time, Abstrate only implements a subset of them. PRs are welcome to add more of them, as needed. Note that it is also easy to add custom runtime functions to the Abstrate rendering call, so even if a function you need is missing, you are not immediately blocked from using it because you can define it yourself at the caller side if pressed.
-
-
