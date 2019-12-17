@@ -30,7 +30,9 @@ describe("Abstrate.go.parse", () => {
     assert.deepEqual(result, [
       {
         "type": "text",
-        "content": " \t\n"
+        "content": " \t\n",
+        "beginOffset": 0,
+        "finalOffset": 3
       }
     ])
   })
@@ -42,7 +44,9 @@ describe("Abstrate.go.parse", () => {
     assert.deepEqual(result, [
       {
         "type": "text",
-        "content": "some text"
+        "content": "some text",
+        "beginOffset": 0,
+        "finalOffset": 9
       }
     ])
   })
@@ -55,9 +59,13 @@ describe("Abstrate.go.parse", () => {
       {
         "type": "dot",
         "of": {
-          "type": "root"
+          "type": "root",
+          "beginOffset": 2,
+          "finalOffset": 4
         },
-        "name": "X"
+        "name": "X",
+        "beginOffset": 2,
+        "finalOffset": 4
       }
     ])
   })
@@ -74,13 +82,21 @@ describe("Abstrate.go.parse", () => {
           "of": {
             "type": "dot",
             "of": {
-              "type": "root"
+              "type": "root",
+              "beginOffset": 2,
+              "finalOffset": 8
             },
-            "name": "X"
+            "name": "X",
+            "beginOffset": 2,
+            "finalOffset": 8
           },
-          "name": "Y"
+          "name": "Y",
+          "beginOffset": 2,
+          "finalOffset": 8
         },
-        "name": "Z"
+        "name": "Z",
+        "beginOffset": 2,
+        "finalOffset": 8
       }
     ])
   })
@@ -92,7 +108,9 @@ describe("Abstrate.go.parse", () => {
     assert.deepEqual(result, [
       {
         "type": "builtin",
-        "name": "printf"
+        "name": "printf",
+        "beginOffset": 2,
+        "finalOffset": 8
       }
     ])
   })
@@ -104,7 +122,9 @@ describe("Abstrate.go.parse", () => {
     assert.deepEqual(result, [
       {
         "type": "variable",
-        "name": ""
+        "name": "",
+        "beginOffset": 2,
+        "finalOffset": 3
       }
     ])
   })
@@ -121,25 +141,37 @@ describe("Abstrate.go.parse", () => {
           "name": "x",
           "value": {
             "type": "number",
-            "value": 3
-          }
+            "value": 3,
+            "beginOffset": 13,
+            "finalOffset": 14
+          },
+          "beginOffset": 7,
+          "finalOffset": 14
         },
         "body": [
           {
             "type": "invoke",
             "target": {
               "type": "variable",
-              "name": "x"
+              "name": "x",
+              "beginOffset": 18,
+              "finalOffset": 20
             },
             "args": [
               {
                 "type": "number",
-                "value": 23
+                "value": 23,
+                "beginOffset": 21,
+                "finalOffset": 23
               }
-            ]
+            ],
+            "beginOffset": 18,
+            "finalOffset": 23
           }
         ],
-        "elseBody": []
+        "elseBody": [],
+        "beginOffset": 2,
+        "finalOffset": 30
       }
     ])
   })
@@ -153,9 +185,13 @@ describe("Abstrate.go.parse", () => {
         "type": "dot",
         "of": {
           "type": "variable",
-          "name": ""
+          "name": "",
+          "beginOffset": 2,
+          "finalOffset": 3
         },
-        "name": "I"
+        "name": "I",
+        "beginOffset": 2,
+        "finalOffset": 5
       }
     ])
   })
@@ -169,18 +205,26 @@ describe("Abstrate.go.parse", () => {
         "type": "invoke",
         "target": {
           "type": "builtin",
-          "name": "printf"
+          "name": "printf",
+          "beginOffset": 2,
+          "finalOffset": 8
         },
         "args": [
           {
             "type": "string",
-            "content": "%d"
+            "content": "%d",
+            "beginOffset": 9,
+            "finalOffset": 13
           },
           {
             "type": "number",
-            "value": 23
+            "value": 23,
+            "beginOffset": 14,
+            "finalOffset": 16
           }
-        ]
+        ],
+        "beginOffset": 2,
+        "finalOffset": 16
       }
     ])
   })
@@ -195,17 +239,27 @@ describe("Abstrate.go.parse", () => {
         "from": {
           "type": "dot",
           "of": {
-            "type": "root"
+            "type": "root",
+            "beginOffset": 2,
+            "finalOffset": 4
           },
-          "name": "X"
+          "name": "X",
+          "beginOffset": 2,
+          "finalOffset": 4
         },
         "to": {
           "type": "dot",
           "of": {
-            "type": "root"
+            "type": "root",
+            "beginOffset": 5,
+            "finalOffset": 7
           },
-          "name": "Y"
-        }
+          "name": "Y",
+          "beginOffset": 5,
+          "finalOffset": 7
+        },
+        "beginOffset": 2,
+        "finalOffset": 7
       }
     ])
   })
@@ -223,18 +277,30 @@ describe("Abstrate.go.parse", () => {
           "from": {
             "type": "dot",
             "of": {
-              "type": "root"
+              "type": "root",
+              "beginOffset": 8,
+              "finalOffset": 10
             },
-            "name": "X"
+            "name": "X",
+            "beginOffset": 8,
+            "finalOffset": 10
           },
           "to": {
             "type": "dot",
             "of": {
-              "type": "root"
+              "type": "root",
+              "beginOffset": 11,
+              "finalOffset": 13
             },
-            "name": "Y"
-          }
-        }
+            "name": "Y",
+            "beginOffset": 11,
+            "finalOffset": 13
+          },
+          "beginOffset": 8,
+          "finalOffset": 13
+        },
+        "beginOffset": 2,
+        "finalOffset": 13
       }
     ])
   })
@@ -249,9 +315,13 @@ describe("Abstrate.go.parse", () => {
         "target": {
           "type": "dot",
           "of": {
-            "type": "root"
+            "type": "root",
+            "beginOffset": 2,
+            "finalOffset": 5
           },
-          "name": "X"
+          "name": "X",
+          "beginOffset": 2,
+          "finalOffset": 5
         },
         "args": [
           {
@@ -259,57 +329,89 @@ describe("Abstrate.go.parse", () => {
             "target": {
               "type": "dot",
               "of": {
-                "type": "root"
+                "type": "root",
+                "beginOffset": 6,
+                "finalOffset": 9
               },
-              "name": "Y"
+              "name": "Y",
+              "beginOffset": 6,
+              "finalOffset": 9
             },
             "args": [
               {
                 "type": "dot",
                 "of": {
-                  "type": "root"
+                  "type": "root",
+                  "beginOffset": 9,
+                  "finalOffset": 11
                 },
-                "name": "Z"
+                "name": "Z",
+                "beginOffset": 9,
+                "finalOffset": 11
               }
-            ]
+            ],
+            "beginOffset": 6,
+            "finalOffset": 11
           },
           {
             "type": "pipe",
             "from": {
               "type": "dot",
               "of": {
-                "type": "root"
+                "type": "root",
+                "beginOffset": 14,
+                "finalOffset": 17
               },
-              "name": "A"
+              "name": "A",
+              "beginOffset": 14,
+              "finalOffset": 17
             },
             "to": {
               "type": "invoke",
               "target": {
                 "type": "dot",
                 "of": {
-                  "type": "root"
+                  "type": "root",
+                  "beginOffset": 19,
+                  "finalOffset": 22
                 },
-                "name": "B"
+                "name": "B",
+                "beginOffset": 19,
+                "finalOffset": 22
               },
               "args": [
                 {
                   "type": "dot",
                   "of": {
-                    "type": "root"
+                    "type": "root",
+                    "beginOffset": 22,
+                    "finalOffset": 24
                   },
-                  "name": "C"
+                  "name": "C",
+                  "beginOffset": 22,
+                  "finalOffset": 24
                 }
-              ]
-            }
+              ],
+              "beginOffset": 19,
+              "finalOffset": 24
+            },
+            "beginOffset": 14,
+            "finalOffset": 24
           },
           {
             "type": "dot",
             "of": {
-              "type": "root"
+              "type": "root",
+              "beginOffset": 27,
+              "finalOffset": 29
             },
-            "name": "E"
+            "name": "E",
+            "beginOffset": 27,
+            "finalOffset": 29
           }
-        ]
+        ],
+        "beginOffset": 2,
+        "finalOffset": 30
       }
     ])
   })
@@ -326,21 +428,33 @@ describe("Abstrate.go.parse", () => {
           "target": {
             "type": "dot",
             "of": {
-              "type": "root"
+              "type": "root",
+              "beginOffset": 3,
+              "finalOffset": 6
             },
-            "name": "Y"
+            "name": "Y",
+            "beginOffset": 3,
+            "finalOffset": 6
           },
           "args": [
             {
               "type": "dot",
               "of": {
-                "type": "root"
+                "type": "root",
+                "beginOffset": 6,
+                "finalOffset": 8
               },
-              "name": "Z"
+              "name": "Z",
+              "beginOffset": 6,
+              "finalOffset": 8
             }
-          ]
+          ],
+          "beginOffset": 3,
+          "finalOffset": 8
         },
-        "name": "Field"
+        "name": "Field",
+        "beginOffset": 2,
+        "finalOffset": 15
       }
     ])
   })
@@ -355,17 +469,25 @@ describe("Abstrate.go.parse", () => {
         "term": {
           "type": "dot",
           "of": {
-            "type": "root"
+            "type": "root",
+            "beginOffset": 5,
+            "finalOffset": 7
           },
-          "name": "X"
+          "name": "X",
+          "beginOffset": 5,
+          "finalOffset": 7
         },
         "body": [
           {
             "type": "text",
-            "content": "hello"
+            "content": "hello",
+            "beginOffset": 9,
+            "finalOffset": 14
           }
         ],
-        "elseBody": []
+        "elseBody": [],
+        "beginOffset": 2,
+        "finalOffset": 19
       }
     ])
   })
@@ -380,22 +502,32 @@ describe("Abstrate.go.parse", () => {
         "term": {
           "type": "dot",
           "of": {
-            "type": "root"
+            "type": "root",
+            "beginOffset": 5,
+            "finalOffset": 7
           },
-          "name": "X"
+          "name": "X",
+          "beginOffset": 5,
+          "finalOffset": 7
         },
         "body": [
           {
             "type": "text",
-            "content": "true"
+            "content": "true",
+            "beginOffset": 9,
+            "finalOffset": 13
           }
         ],
         "elseBody": [
           {
             "type": "text",
-            "content": "false"
+            "content": "false",
+            "beginOffset": 21,
+            "finalOffset": 26
           }
-        ]
+        ],
+        "beginOffset": 2,
+        "finalOffset": 31
       }
     ])
   })
@@ -410,14 +542,20 @@ describe("Abstrate.go.parse", () => {
         "term": {
           "type": "dot",
           "of": {
-            "type": "root"
+            "type": "root",
+            "beginOffset": 5,
+            "finalOffset": 7
           },
-          "name": "X"
+          "name": "X",
+          "beginOffset": 5,
+          "finalOffset": 7
         },
         "body": [
           {
             "type": "text",
-            "content": "true"
+            "content": "true",
+            "beginOffset": 9,
+            "finalOffset": 13
           }
         ],
         "elseBody": {
@@ -425,18 +563,28 @@ describe("Abstrate.go.parse", () => {
           "term": {
             "type": "dot",
             "of": {
-              "type": "root"
+              "type": "root",
+              "beginOffset": 23,
+              "finalOffset": 25
             },
-            "name": "Y"
+            "name": "Y",
+            "beginOffset": 23,
+            "finalOffset": 25
           },
           "body": [
             {
               "type": "text",
-              "content": "false"
+              "content": "false",
+              "beginOffset": 27,
+              "finalOffset": 32
             }
           ],
-          "elseBody": []
-        }
+          "elseBody": [],
+          "beginOffset": 20,
+          "finalOffset": 37
+        },
+        "beginOffset": 2,
+        "finalOffset": 37
       }
     ])
   })
@@ -448,21 +596,29 @@ describe("Abstrate.go.parse", () => {
     assert.deepEqual(result, [
       {
         "type": "text",
-        "content": "+"
+        "content": "+",
+        "beginOffset": 0,
+        "finalOffset": 1
       },
       {
         "type": "if",
         "term": {
           "type": "dot",
           "of": {
-            "type": "root"
+            "type": "root",
+            "beginOffset": 6,
+            "finalOffset": 8
           },
-          "name": "X"
+          "name": "X",
+          "beginOffset": 6,
+          "finalOffset": 8
         },
         "body": [
           {
             "type": "text",
-            "content": "X"
+            "content": "X",
+            "beginOffset": 10,
+            "finalOffset": 11
           }
         ],
         "elseBody": {
@@ -470,14 +626,20 @@ describe("Abstrate.go.parse", () => {
           "term": {
             "type": "dot",
             "of": {
-              "type": "root"
+              "type": "root",
+              "beginOffset": 21,
+              "finalOffset": 23
             },
-            "name": "Y"
+            "name": "Y",
+            "beginOffset": 21,
+            "finalOffset": 23
           },
           "body": [
             {
               "type": "text",
-              "content": "Y"
+              "content": "Y",
+              "beginOffset": 25,
+              "finalOffset": 26
             }
           ],
           "elseBody": {
@@ -485,23 +647,37 @@ describe("Abstrate.go.parse", () => {
             "term": {
               "type": "dot",
               "of": {
-                "type": "root"
+                "type": "root",
+                "beginOffset": 36,
+                "finalOffset": 38
               },
-              "name": "Z"
+              "name": "Z",
+              "beginOffset": 36,
+              "finalOffset": 38
             },
             "body": [
               {
                 "type": "text",
-                "content": "Z"
+                "content": "Z",
+                "beginOffset": 40,
+                "finalOffset": 41
               }
             ],
-            "elseBody": []
-          }
-        }
+            "elseBody": [],
+            "beginOffset": 33,
+            "finalOffset": 46
+          },
+          "beginOffset": 18,
+          "finalOffset": 46
+        },
+        "beginOffset": 3,
+        "finalOffset": 46
       },
       {
         "type": "text",
-        "content": "+"
+        "content": "+",
+        "beginOffset": 48,
+        "finalOffset": 49
       }
     ])
   })
@@ -516,17 +692,25 @@ describe("Abstrate.go.parse", () => {
         "term": {
           "type": "dot",
           "of": {
-            "type": "root"
+            "type": "root",
+            "beginOffset": 8,
+            "finalOffset": 10
           },
-          "name": "X"
+          "name": "X",
+          "beginOffset": 8,
+          "finalOffset": 10
         },
         "body": [
           {
             "type": "text",
-            "content": "hello"
+            "content": "hello",
+            "beginOffset": 12,
+            "finalOffset": 17
           }
         ],
-        "elseBody": []
+        "elseBody": [],
+        "beginOffset": 2,
+        "finalOffset": 22
       }
     ])
   })
@@ -545,21 +729,33 @@ describe("Abstrate.go.parse", () => {
             "of": {
               "type": "dot",
               "of": {
-                "type": "root"
+                "type": "root",
+                "beginOffset": 8,
+                "finalOffset": 14
               },
-              "name": "X"
+              "name": "X",
+              "beginOffset": 8,
+              "finalOffset": 14
             },
-            "name": "Y"
+            "name": "Y",
+            "beginOffset": 8,
+            "finalOffset": 14
           },
-          "name": "Z"
+          "name": "Z",
+          "beginOffset": 8,
+          "finalOffset": 14
         },
         "body": [
           {
             "type": "text",
-            "content": "hello"
+            "content": "hello",
+            "beginOffset": 16,
+            "finalOffset": 21
           }
         ],
-        "elseBody": []
+        "elseBody": [],
+        "beginOffset": 2,
+        "finalOffset": 26
       }
     ])
   })
@@ -574,34 +770,50 @@ describe("Abstrate.go.parse", () => {
         "term": {
           "type": "dot",
           "of": {
-            "type": "root"
+            "type": "root",
+            "beginOffset": 8,
+            "finalOffset": 10
           },
-          "name": "X"
+          "name": "X",
+          "beginOffset": 8,
+          "finalOffset": 10
         },
         "body": [
           {
             "type": "text",
-            "content": "hello"
+            "content": "hello",
+            "beginOffset": 12,
+            "finalOffset": 17
           },
           {
             "type": "range",
             "term": {
               "type": "dot",
               "of": {
-                "type": "root"
+                "type": "root",
+                "beginOffset": 25,
+                "finalOffset": 27
               },
-              "name": "Y"
+              "name": "Y",
+              "beginOffset": 25,
+              "finalOffset": 27
             },
             "body": [
               {
                 "type": "text",
-                "content": "goodbye"
+                "content": "goodbye",
+                "beginOffset": 29,
+                "finalOffset": 36
               }
             ],
-            "elseBody": []
+            "elseBody": [],
+            "beginOffset": 19,
+            "finalOffset": 41
           }
         ],
-        "elseBody": []
+        "elseBody": [],
+        "beginOffset": 2,
+        "finalOffset": 48
       }
     ])
   })
@@ -616,22 +828,32 @@ describe("Abstrate.go.parse", () => {
         "term": {
           "type": "dot",
           "of": {
-            "type": "root"
+            "type": "root",
+            "beginOffset": 8,
+            "finalOffset": 10
           },
-          "name": "X"
+          "name": "X",
+          "beginOffset": 8,
+          "finalOffset": 10
         },
         "body": [
           {
             "type": "text",
-            "content": "true"
+            "content": "true",
+            "beginOffset": 12,
+            "finalOffset": 16
           }
         ],
         "elseBody": [
           {
             "type": "text",
-            "content": "false"
+            "content": "false",
+            "beginOffset": 24,
+            "finalOffset": 29
           }
-        ]
+        ],
+        "beginOffset": 2,
+        "finalOffset": 34
       }
     ])
   })
@@ -648,30 +870,46 @@ describe("Abstrate.go.parse", () => {
           "from": {
             "type": "dot",
             "of": {
-              "type": "root"
+              "type": "root",
+              "beginOffset": 8,
+              "finalOffset": 10
             },
-            "name": "X"
+            "name": "X",
+            "beginOffset": 8,
+            "finalOffset": 10
           },
           "to": {
             "type": "dot",
             "of": {
-              "type": "root"
+              "type": "root",
+              "beginOffset": 11,
+              "finalOffset": 13
             },
-            "name": "M"
-          }
+            "name": "M",
+            "beginOffset": 11,
+            "finalOffset": 13
+          },
+          "beginOffset": 8,
+          "finalOffset": 13
         },
         "body": [
           {
             "type": "text",
-            "content": "true"
+            "content": "true",
+            "beginOffset": 15,
+            "finalOffset": 19
           }
         ],
         "elseBody": [
           {
             "type": "text",
-            "content": "false"
+            "content": "false",
+            "beginOffset": 27,
+            "finalOffset": 32
           }
-        ]
+        ],
+        "beginOffset": 2,
+        "finalOffset": 37
       }
     ])
   })
@@ -686,16 +924,24 @@ describe("Abstrate.go.parse", () => {
         "term": {
           "type": "dot",
           "of": {
-            "type": "root"
+            "type": "root",
+            "beginOffset": 8,
+            "finalOffset": 11
           },
-          "name": "SI"
+          "name": "SI",
+          "beginOffset": 8,
+          "finalOffset": 11
         },
         "body": [
           {
-            "type": "root"
+            "type": "root",
+            "beginOffset": 15,
+            "finalOffset": 16
           }
         ],
-        "elseBody": []
+        "elseBody": [],
+        "beginOffset": 2,
+        "finalOffset": 23
       }
     ])
   })
@@ -713,17 +959,27 @@ describe("Abstrate.go.parse", () => {
           "value": {
             "type": "dot",
             "of": {
-              "type": "root"
+              "type": "root",
+              "beginOffset": 14,
+              "finalOffset": 17
             },
-            "name": "SI"
-          }
+            "name": "SI",
+            "beginOffset": 14,
+            "finalOffset": 17
+          },
+          "beginOffset": 8,
+          "finalOffset": 17
         },
         "body": [
           {
-            "type": "root"
+            "type": "root",
+            "beginOffset": 21,
+            "finalOffset": 22
           }
         ],
-        "elseBody": []
+        "elseBody": [],
+        "beginOffset": 2,
+        "finalOffset": 29
       }
     ])
   })
@@ -737,7 +993,9 @@ describe("Abstrate.go.parse", () => {
         "type": "range",
         "declareIndex": {
           "type": "variable",
-          "name": "x"
+          "name": "x",
+          "beginOffset": 8,
+          "finalOffset": 10
         },
         "term": {
           "type": "declare",
@@ -745,17 +1003,27 @@ describe("Abstrate.go.parse", () => {
           "value": {
             "type": "dot",
             "of": {
-              "type": "root"
+              "type": "root",
+              "beginOffset": 18,
+              "finalOffset": 21
             },
-            "name": "SI"
-          }
+            "name": "SI",
+            "beginOffset": 18,
+            "finalOffset": 21
+          },
+          "beginOffset": 12,
+          "finalOffset": 21
         },
         "body": [
           {
-            "type": "root"
+            "type": "root",
+            "beginOffset": 25,
+            "finalOffset": 26
           }
         ],
-        "elseBody": []
+        "elseBody": [],
+        "beginOffset": 2,
+        "finalOffset": 33
       }
     ])
   })
@@ -774,39 +1042,59 @@ describe("Abstrate.go.parse", () => {
           "target": {
             "type": "dot",
             "of": {
-              "type": "root"
+              "type": "root",
+              "beginOffset": 8,
+              "finalOffset": 12
             },
-            "name": "SI"
+            "name": "SI",
+            "beginOffset": 8,
+            "finalOffset": 12
           },
           "args": [
             {
               "type": "number",
-              "value": 1
+              "value": 1,
+              "beginOffset": 12,
+              "finalOffset": 13
             },
             {
               "type": "number",
-              "value": -3.2
+              "value": -3.2,
+              "beginOffset": 14,
+              "finalOffset": 18
             },
             {
               "type": "builtin",
-              "name": "true"
+              "name": "true",
+              "beginOffset": 19,
+              "finalOffset": 23
             },
             {
               "type": "builtin",
-              "name": "false"
+              "name": "false",
+              "beginOffset": 24,
+              "finalOffset": 29
             },
             {
               "type": "char",
-              "content": "a"
+              "content": "a",
+              "beginOffset": 30,
+              "finalOffset": 33
             },
             {
               "type": "builtin",
-              "name": "nil"
+              "name": "nil",
+              "beginOffset": 34,
+              "finalOffset": 37
             }
-          ]
+          ],
+          "beginOffset": 8,
+          "finalOffset": 37
         },
         "body": [],
-        "elseBody": []
+        "elseBody": [],
+        "beginOffset": 2,
+        "finalOffset": 44
       }
     ])
   })
@@ -820,14 +1108,20 @@ describe("Abstrate.go.parse", () => {
         "type": "invoke",
         "target": {
           "type": "builtin",
-          "name": "template"
+          "name": "template",
+          "beginOffset": 2,
+          "finalOffset": 10
         },
         "args": [
           {
             "type": "string",
-            "content": "x"
+            "content": "x",
+            "beginOffset": 11,
+            "finalOffset": 14
           }
-        ]
+        ],
+        "beginOffset": 2,
+        "finalOffset": 14
       }
     ])
   })
@@ -841,21 +1135,31 @@ describe("Abstrate.go.parse", () => {
         "type": "invoke",
         "target": {
           "type": "builtin",
-          "name": "template"
+          "name": "template",
+          "beginOffset": 2,
+          "finalOffset": 10
         },
         "args": [
           {
             "type": "string",
-            "content": "x"
+            "content": "x",
+            "beginOffset": 11,
+            "finalOffset": 14
           },
           {
             "type": "dot",
             "of": {
-              "type": "root"
+              "type": "root",
+              "beginOffset": 15,
+              "finalOffset": 17
             },
-            "name": "Y"
+            "name": "Y",
+            "beginOffset": 15,
+            "finalOffset": 17
           }
-        ]
+        ],
+        "beginOffset": 2,
+        "finalOffset": 17
       }
     ])
   })
@@ -870,17 +1174,25 @@ describe("Abstrate.go.parse", () => {
         "term": {
           "type": "dot",
           "of": {
-            "type": "root"
+            "type": "root",
+            "beginOffset": 7,
+            "finalOffset": 9
           },
-          "name": "X"
+          "name": "X",
+          "beginOffset": 7,
+          "finalOffset": 9
         },
         "body": [
           {
             "type": "text",
-            "content": "hello"
+            "content": "hello",
+            "beginOffset": 11,
+            "finalOffset": 16
           }
         ],
-        "elseBody": []
+        "elseBody": [],
+        "beginOffset": 2,
+        "finalOffset": 21
       }
     ])
   })
@@ -895,22 +1207,32 @@ describe("Abstrate.go.parse", () => {
         "term": {
           "type": "dot",
           "of": {
-            "type": "root"
+            "type": "root",
+            "beginOffset": 7,
+            "finalOffset": 9
           },
-          "name": "X"
+          "name": "X",
+          "beginOffset": 7,
+          "finalOffset": 9
         },
         "body": [
           {
             "type": "text",
-            "content": "hello"
+            "content": "hello",
+            "beginOffset": 11,
+            "finalOffset": 16
           }
         ],
         "elseBody": [
           {
             "type": "text",
-            "content": "goodbye"
+            "content": "goodbye",
+            "beginOffset": 24,
+            "finalOffset": 31
           }
-        ]
+        ],
+        "beginOffset": 2,
+        "finalOffset": 36
       }
     ])
   })
@@ -923,11 +1245,15 @@ describe("Abstrate.go.parse", () => {
       {
         "type": "text",
         "content": "x \r\n\t",
+        "beginOffset": 0,
+        "finalOffset": 5,
         "trimRight": true
       },
       {
         "type": "number",
-        "value": 3
+        "value": 3,
+        "beginOffset": 9,
+        "finalOffset": 10
       }
     ])
   })
@@ -939,11 +1265,15 @@ describe("Abstrate.go.parse", () => {
     assert.deepEqual(result, [
       {
         "type": "number",
-        "value": 3
+        "value": 3,
+        "beginOffset": 2,
+        "finalOffset": 3
       },
       {
         "type": "text",
         "content": "\n\n\ty",
+        "beginOffset": 7,
+        "finalOffset": 11,
         "trimLeft": true
       }
     ])
@@ -957,15 +1287,21 @@ describe("Abstrate.go.parse", () => {
       {
         "type": "text",
         "content": "x \r\n\t",
+        "beginOffset": 0,
+        "finalOffset": 5,
         "trimRight": true
       },
       {
         "type": "number",
-        "value": 3
+        "value": 3,
+        "beginOffset": 9,
+        "finalOffset": 10
       },
       {
         "type": "text",
         "content": "\n\n\ty",
+        "beginOffset": 14,
+        "finalOffset": 18,
         "trimLeft": true
       }
     ])
@@ -979,15 +1315,21 @@ describe("Abstrate.go.parse", () => {
       {
         "type": "text",
         "content": "x\n",
+        "beginOffset": 0,
+        "finalOffset": 2,
         "trimRight": true
       },
       {
         "type": "number",
-        "value": 3
+        "value": 3,
+        "beginOffset": 7,
+        "finalOffset": 8
       },
       {
         "type": "text",
         "content": "\ny",
+        "beginOffset": 14,
+        "finalOffset": 16,
         "trimLeft": true
       }
     ])
@@ -1001,6 +1343,8 @@ describe("Abstrate.go.parse", () => {
       {
         "type": "text",
         "content": "x \r\n\t",
+        "beginOffset": 0,
+        "finalOffset": 5,
         "trimRight": true
       }
     ])
@@ -1014,6 +1358,8 @@ describe("Abstrate.go.parse", () => {
       {
         "type": "text",
         "content": "\n\n\ty",
+        "beginOffset": 14,
+        "finalOffset": 18,
         "trimLeft": true
       }
     ])
@@ -1030,20 +1376,30 @@ describe("Abstrate.go.parse", () => {
           "type": "invoke",
           "target": {
             "type": "string",
-            "content": "foo"
+            "content": "foo",
+            "beginOffset": 8,
+            "finalOffset": 13
           },
           "args": [
             {
-              "type": "root"
+              "type": "root",
+              "beginOffset": 14,
+              "finalOffset": 15
             }
-          ]
+          ],
+          "beginOffset": 8,
+          "finalOffset": 15
         },
         "body": [
           {
             "type": "text",
-            "content": "hello"
+            "content": "hello",
+            "beginOffset": 17,
+            "finalOffset": 22
           }
-        ]
+        ],
+        "beginOffset": 2,
+        "finalOffset": 27
       }
     ])
   })
@@ -1057,21 +1413,31 @@ describe("Abstrate.go.parse", () => {
         "type": "declare",
         "name": "x",
         "value": {
-          "type": "root"
-        }
+          "type": "root",
+          "beginOffset": 6,
+          "finalOffset": 7
+        },
+        "beginOffset": 2,
+        "finalOffset": 7
       },
       {
         "type": "invoke",
         "target": {
           "type": "variable",
-          "name": "x"
+          "name": "x",
+          "beginOffset": 11,
+          "finalOffset": 13
         },
         "args": [
           {
             "type": "number",
-            "value": 2
+            "value": 2,
+            "beginOffset": 14,
+            "finalOffset": 16
           }
-        ]
+        ],
+        "beginOffset": 11,
+        "finalOffset": 16
       }
     ])
   })
@@ -1081,7 +1447,6 @@ describe("Abstrate.go.parse", () => {
 
   it("parses a simple example with HTML text content", () => {
     const result = Abstrate.go.parse(
-            
     `
     <!DOCTYPE html>
     <html>
@@ -1097,51 +1462,75 @@ describe("Abstrate.go.parse", () => {
     assert.deepEqual(result, [
       {
         "type": "text",
-        "content": "\n    <!DOCTYPE html>\n    <html>\n      <head>\n        <meta charset=\"UTF-8\">\n        <title>"
+        "content": "\n    <!DOCTYPE html>\n    <html>\n      <head>\n        <meta charset=\"UTF-8\">\n        <title>",
+        "beginOffset": 0,
+        "finalOffset": 91
       },
       {
         "type": "dot",
         "of": {
-          "type": "root"
+          "type": "root",
+          "beginOffset": 93,
+          "finalOffset": 99
         },
-        "name": "Title"
+        "name": "Title",
+        "beginOffset": 93,
+        "finalOffset": 99
       },
       {
         "type": "text",
-        "content": "</title>\n      </head>\n      <body>\n        "
+        "content": "</title>\n      </head>\n      <body>\n        ",
+        "beginOffset": 101,
+        "finalOffset": 145
       },
       {
         "type": "range",
         "term": {
           "type": "dot",
           "of": {
-            "type": "root"
+            "type": "root",
+            "beginOffset": 153,
+            "finalOffset": 159
           },
-          "name": "Items"
+          "name": "Items",
+          "beginOffset": 153,
+          "finalOffset": 159
         },
         "body": [
           {
             "type": "text",
-            "content": "<div>"
+            "content": "<div>",
+            "beginOffset": 161,
+            "finalOffset": 166
           },
           {
-            "type": "root"
+            "type": "root",
+            "beginOffset": 169,
+            "finalOffset": 171
           },
           {
             "type": "text",
-            "content": "</div>"
+            "content": "</div>",
+            "beginOffset": 173,
+            "finalOffset": 179
           }
         ],
         "elseBody": [
           {
             "type": "text",
-            "content": "<div><strong>no rows</strong></div>"
+            "content": "<div><strong>no rows</strong></div>",
+            "beginOffset": 187,
+            "finalOffset": 222
           }
-        ]
+        ],
+        "beginOffset": 147,
+        "finalOffset": 227
       },
       {
         "type": "text",
-        "content": "\n      </body>\n    </html>\n    "
+        "content": "\n      </body>\n    </html>\n    ",
+        "beginOffset": 229,
+        "finalOffset": 260
       }
     ])
   })
@@ -1151,17 +1540,41 @@ describe("Abstrate.go.parse", () => {
       "{{ $Greeting }}, {{ exclaim .Object }}"
     )
     assert.deepEqual(result, [
-      { "type": "variable", "name": "Greeting" },
-      { "type": "text", "content": ", " },
-      { "type": "invoke",
-        "target": { "name": "exclaim", "type": "builtin" },
-        "args": [
+      {
+        type: "variable",
+        name: "Greeting",
+        beginOffset: 3,
+        finalOffset: 12,
+      },
+      {
+        type: "text",
+        content: ", ",
+        beginOffset: 15,
+        finalOffset: 17,
+      },
+      {
+        type: "invoke",
+        target: {
+          type: "builtin",
+          name: "exclaim",
+          beginOffset: 20,
+          finalOffset: 27,
+        },
+        args: [
           {
-            "name": "Object",
-            "of": { "type": "root" },
-            "type": "dot",
-          },
+            type: "dot",
+            of: {
+              type: "root",
+              beginOffset: 28,
+              finalOffset: 36,
+            },
+            name: "Object",
+            beginOffset: 28,
+            finalOffset: 36,
+          }
         ],
+        beginOffset: 20,
+        finalOffset: 36,
       }
     ])
   })

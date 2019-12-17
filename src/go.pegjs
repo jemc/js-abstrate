@@ -2,6 +2,18 @@
 // This grammar implements a syntax compatible with Go templates.
 // See https://golang.org/pkg/text/template/
 
+{
+  // Define a convenience function for "spreading" location info into a node.
+  // (i.e. `...loc()`)
+  function loc() {
+    const loc = location()
+    return {
+      beginOffset: loc.start.offset,
+      finalOffset: loc.end.offset,
+    }
+  }
+}
+
 ///
 // The root of the template may be text only, or it may be a mixture of text
 // and template expression blocks.
@@ -23,8 +35,8 @@ roottmpl
 roottextonly
   = content:textbody
     {
-      if (content.length > 0) {
-        return [{ type: "text", content: content }]
+      if (content.content.length > 0) {
+        return [{ type: "text", ...content }]
       } else {
         return []
       }
@@ -34,16 +46,16 @@ roottextonly
 // A text area is any arbitrary characters, delimited by "mustaches".
 
 text
-  = left:textbegin body:textbody right:textend
-    { return { type: "text", content: body, ...left, ...right } }
+  = left:textbegin content:textbody right:textend
+    { return { type: "text", ...content, ...left, ...right } }
 
 textfirst
-  = body:textbody right:textend
-    { return { type: "text", content: body, ...right } }
+  = content:textbody right:textend
+    { return { type: "text", ...content, ...right } }
 
 textlast
-  = left:textbegin body:textbody
-    { return { type: "text", content: body, ...left } }
+  = left:textbegin content:textbody
+    { return { type: "text", ...content, ...left } }
 
 textend
   = "{{-" { return { trimRight: true } }
@@ -54,7 +66,7 @@ textbegin
   / "}}" { return {} }
 
 textbody "text"
-  = chars:textchar* { return chars.join("") }
+  = chars:textchar* { return { content: chars.join(""), ...loc() } }
 
 textchar
   = !textend char:anychar { return char }
@@ -92,25 +104,25 @@ parens
 
 withblock "with block"
   = "with" term:expr body:blockbody elseBody:blockelsebody? blockend
-    { return { type: "with", term: term, body: body, elseBody: elseBody || [] } }
+    { return { type: "with", term: term, body: body, elseBody: elseBody || [], ...loc() } }
 
 ifblock "if block"
   = ifelseifblock
   / "if" term:expr body:blockbody elseBody:blockelsebody? blockend
-    { return { type: "if", term: term, body: body, elseBody: elseBody || [] } }
+    { return { type: "if", term: term, body: body, elseBody: elseBody || [], ...loc() } }
 
 ifelseifblock
   = "if" term:expr body:blockbody ws "else " ws elseBody:ifblock
-    { return { type: "if", term: term, body: body, elseBody: elseBody } }
+    { return { type: "if", term: term, body: body, elseBody: elseBody, ...loc() } }
 
 rangeblock "range block"
   = rangewithindexblock
   / "range" term:expr body:rangeblockbody
-    { return { type: "range", term: term, ...body } }
+    { return { type: "range", term: term, ...body, ...loc() } }
 
 rangewithindexblock
   = "range" ws index:variable ", " ws term:expr body:rangeblockbody
-    { return { type: "range", declareIndex: index, term: term, ...body } }
+    { return { type: "range", declareIndex: index, term: term, ...body, ...loc() } }
 
 rangeblockbody
   = body:blockbody elseBody:blockelsebody? blockend
@@ -118,7 +130,7 @@ rangeblockbody
 
 blockblock "block block"
   = "block" term:expr body:blockbody blockend
-    { return { type: "block", term: term, body: body } }
+    { return { type: "block", term: term, body: body, ...loc() } }
 
 blockelsebody
   = blockelse body:blockbody { return body }
@@ -149,15 +161,15 @@ blockend "end"
 
 declare "variable declaration"
   = "$" name:ident ws ":=" value:expr
-    { return { type: "declare", name: name, value: value } }
+    { return { type: "declare", name: name, value: value, ...loc() } }
 
 assign "variable assignation"
   = "$" name:ident ws "=" value:expr
-    { return { type: "assign", name: name, value: value } }
+    { return { type: "assign", name: name, value: value, ...loc() } }
 
 variable
   = "$" name:(ident / "")
-    { return { type: "variable", name: name } }
+    { return { type: "variable", name: name, ...loc() } }
 
 ///
 // Pipelines are complex expressions that can contain things piped into things,
@@ -166,7 +178,9 @@ variable
 pipeline "pipeline"
   = first:pipelineexpr rest:(ws "|" ws pipelineexpr)* {
     var root = first
-    rest.forEach((r) => { root = { type: "pipe", from: root, to: r[3] } })
+    rest.forEach((r) => {
+      root = { type: "pipe", from: root, to: r[3], ...loc() }
+    })
     return root
   }
 
@@ -178,8 +192,10 @@ pipelinedotident
 
 pipelinedots
   = ws root:atom? names:pipelinedotident+ ws {
-    var root = root || { type: "root" }
-    names.forEach((name) => { root = { type: "dot", of: root, name: name } })
+    var root = root || { type: "root", ...loc() }
+    names.forEach((name) => {
+      root = { type: "dot", of: root, name: name, ...loc() }
+    })
     return root
   }
 
@@ -188,7 +204,7 @@ pipelineinvoke
     if (args.length == 0) {
       return target
     } else {
-      return { type: "invoke", target: target, args: args }
+      return { type: "invoke", target: target, args: args, ...loc() }
     }
   }
 
@@ -200,10 +216,10 @@ pipelineinvoketarget
 
 pipelineinvoketargetbuiltin
   = name:ident
-    { return { type: "builtin", name: name } }
+    { return { type: "builtin", name: name, ...loc() } }
 
 pipelineroot
-  = ws "." ws { return { type: "root" } }
+  = ws "." ws { return { type: "root", ...loc() } }
 
 pipelineinvokearg
   = ws term:(
@@ -216,7 +232,7 @@ pipelineinvokearg
 
 invalid
   = chars:invalidchar+
-    { return { type: "invalid", content: chars.join("") } }
+    { return { type: "invalid", content: chars.join(""), ...loc() } }
 
 invalidchar
   = !textbegin char:anychar { return char }
@@ -233,7 +249,7 @@ ident "identifier"
 
 number "number"
   = ("-" / "+")? numberint numberfrac? numberexp?
-    { return { type: "number", value: parseFloat(text()) }; }
+    { return { type: "number", value: parseFloat(text()), ...loc() } }
 
 numberexp
   = [eE] ("-" / "+")? [0-9]+
@@ -249,22 +265,28 @@ numberint
 
 // TODO: handle escaping, treat differently from one another
 string
-  = "\"" chars:[^"]* "\"" { return { type: "string", content: chars.join("") } }
+  = "\"" chars:[^"]* "\"" {
+    return { type: "string", content: chars.join(""), ...loc() }
+  }
 
 // TODO: handle escaping, treat differently from one another
 stringraw
-  = "`" chars:[^`]* "`" { return { type: "string", content: chars.join("") } }
+  = "`" chars:[^`]* "`" {
+    return { type: "string", content: chars.join(""), ...loc() }
+  }
 
 // TODO: handle escaping, treat differently from one another
 stringchar
-  = "'" chars:[^']* "'" { return { type: "char", content: chars.join("") } }
+  = "'" chars:[^']* "'" {
+    return { type: "char", content: chars.join(""), ...loc() }
+  }
 
 ///
 // Whitespace is optional in many places, and comments can be included in it.
 
 comment "comment"
   = commentbegin chars:commentchar+ commentend
-    { return { type: "comment", content: chars.join("") } }
+    { return { type: "comment", content: chars.join(""), ...loc() } }
 
 commentchar
   = !commentend char:anychar { return char }

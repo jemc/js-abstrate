@@ -8,7 +8,7 @@ At this time, the only rendering engine is one that compatible with the syntax o
 
 The following example demonstrates rendering a simple template (the first argument), including passing in data (the second argument), and custom variables and functions for the runtime environment (the third argument).
 
-```
+```js
 const Abstrate = require("abstrate")
 
 Abstrate.go.render(
@@ -23,24 +23,48 @@ Abstrate.go.render(
 
 We can also parse the template to an intermediate representation (abstract syntax tree) instead of executing it. This allows the use of custom logic to do static analysis on the templates. For example, one could detect which variables are defined or which functions are used within certain blocks of the template.
 
-```
+```js
 Abstrate = require("abstrate")
 
 Abstrate.go.parse(
   "{{ $Greeting }}, {{ exclaim .Object }}"
 ) /* =>
   [
-    { "type": "variable", "name": "Greeting" },
-    { "type": "text", "content": ", " },
-    { "type": "invoke",
-      "target": { "type": "builtin", "name": "exclaim" },
-      "args": [
+    {
+      type: "variable",
+      name: "Greeting",
+      beginOffset: 3,
+      finalOffset: 12,
+    },
+    {
+      type: "text",
+      content: ", ",
+      beginOffset: 15,
+      finalOffset: 17,
+    },
+    {
+      type: "invoke",
+      target: {
+        type: "builtin",
+        name: "exclaim",
+        beginOffset: 20,
+        finalOffset: 27,
+      },
+      args: [
         {
-          "type": "dot",
-          "name": "Object",
-          "of": { "type": "root" },
-        },
+          type: "dot",
+          of: {
+            type: "root",
+            beginOffset: 28,
+            finalOffset: 36,
+          },
+          name: "Object",
+          beginOffset: 28,
+          finalOffset: 36,
+        }
       ],
+      beginOffset: 20,
+      finalOffset: 36,
     }
   ]
 */

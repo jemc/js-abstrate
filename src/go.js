@@ -151,15 +151,15 @@ function peg$parse(input, options) {
             return result
           },
       peg$c1 = function(content) {
-            if (content.length > 0) {
-              return [{ type: "text", content: content }]
+            if (content.content.length > 0) {
+              return [{ type: "text", ...content }]
             } else {
               return []
             }
           },
-      peg$c2 = function(left, body, right) { return { type: "text", content: body, ...left, ...right } },
-      peg$c3 = function(body, right) { return { type: "text", content: body, ...right } },
-      peg$c4 = function(left, body) { return { type: "text", content: body, ...left } },
+      peg$c2 = function(left, content, right) { return { type: "text", ...content, ...left, ...right } },
+      peg$c3 = function(content, right) { return { type: "text", ...content, ...right } },
+      peg$c4 = function(left, content) { return { type: "text", ...content, ...left } },
       peg$c5 = "{{-",
       peg$c6 = peg$literalExpectation("{{-", false),
       peg$c7 = function() { return { trimRight: true } },
@@ -172,7 +172,7 @@ function peg$parse(input, options) {
       peg$c14 = "}}",
       peg$c15 = peg$literalExpectation("}}", false),
       peg$c16 = peg$otherExpectation("text"),
-      peg$c17 = function(chars) { return chars.join("") },
+      peg$c17 = function(chars) { return { content: chars.join(""), ...loc() } },
       peg$c18 = function(char) { return char },
       peg$c19 = peg$otherExpectation("expression"),
       peg$c20 = function(body) { return body },
@@ -184,26 +184,26 @@ function peg$parse(input, options) {
       peg$c26 = peg$otherExpectation("with block"),
       peg$c27 = "with",
       peg$c28 = peg$literalExpectation("with", false),
-      peg$c29 = function(term, body, elseBody) { return { type: "with", term: term, body: body, elseBody: elseBody || [] } },
+      peg$c29 = function(term, body, elseBody) { return { type: "with", term: term, body: body, elseBody: elseBody || [], ...loc() } },
       peg$c30 = peg$otherExpectation("if block"),
       peg$c31 = "if",
       peg$c32 = peg$literalExpectation("if", false),
-      peg$c33 = function(term, body, elseBody) { return { type: "if", term: term, body: body, elseBody: elseBody || [] } },
+      peg$c33 = function(term, body, elseBody) { return { type: "if", term: term, body: body, elseBody: elseBody || [], ...loc() } },
       peg$c34 = "else ",
       peg$c35 = peg$literalExpectation("else ", false),
-      peg$c36 = function(term, body, elseBody) { return { type: "if", term: term, body: body, elseBody: elseBody } },
+      peg$c36 = function(term, body, elseBody) { return { type: "if", term: term, body: body, elseBody: elseBody, ...loc() } },
       peg$c37 = peg$otherExpectation("range block"),
       peg$c38 = "range",
       peg$c39 = peg$literalExpectation("range", false),
-      peg$c40 = function(term, body) { return { type: "range", term: term, ...body } },
+      peg$c40 = function(term, body) { return { type: "range", term: term, ...body, ...loc() } },
       peg$c41 = ", ",
       peg$c42 = peg$literalExpectation(", ", false),
-      peg$c43 = function(index, term, body) { return { type: "range", declareIndex: index, term: term, ...body } },
+      peg$c43 = function(index, term, body) { return { type: "range", declareIndex: index, term: term, ...body, ...loc() } },
       peg$c44 = function(body, elseBody) { return { body: body, elseBody: elseBody || [] } },
       peg$c45 = peg$otherExpectation("block block"),
       peg$c46 = "block",
       peg$c47 = peg$literalExpectation("block", false),
-      peg$c48 = function(term, body) { return { type: "block", term: term, body: body } },
+      peg$c48 = function(term, body) { return { type: "block", term: term, body: body, ...loc() } },
       peg$c49 = peg$otherExpectation("block body"),
       peg$c50 = function(first, lists) {
             var result = []
@@ -227,19 +227,21 @@ function peg$parse(input, options) {
       peg$c60 = peg$literalExpectation("$", false),
       peg$c61 = ":=",
       peg$c62 = peg$literalExpectation(":=", false),
-      peg$c63 = function(name, value) { return { type: "declare", name: name, value: value } },
+      peg$c63 = function(name, value) { return { type: "declare", name: name, value: value, ...loc() } },
       peg$c64 = peg$otherExpectation("variable assignation"),
       peg$c65 = "=",
       peg$c66 = peg$literalExpectation("=", false),
-      peg$c67 = function(name, value) { return { type: "assign", name: name, value: value } },
+      peg$c67 = function(name, value) { return { type: "assign", name: name, value: value, ...loc() } },
       peg$c68 = "",
-      peg$c69 = function(name) { return { type: "variable", name: name } },
+      peg$c69 = function(name) { return { type: "variable", name: name, ...loc() } },
       peg$c70 = peg$otherExpectation("pipeline"),
       peg$c71 = "|",
       peg$c72 = peg$literalExpectation("|", false),
       peg$c73 = function(first, rest) {
           var root = first
-          rest.forEach((r) => { root = { type: "pipe", from: root, to: r[3] } })
+          rest.forEach((r) => {
+            root = { type: "pipe", from: root, to: r[3], ...loc() }
+          })
           return root
         },
       peg$c74 = peg$otherExpectation("pipeline expression"),
@@ -247,20 +249,22 @@ function peg$parse(input, options) {
       peg$c76 = peg$literalExpectation(".", false),
       peg$c77 = function(name) { return name },
       peg$c78 = function(root, names) {
-          var root = root || { type: "root" }
-          names.forEach((name) => { root = { type: "dot", of: root, name: name } })
+          var root = root || { type: "root", ...loc() }
+          names.forEach((name) => {
+            root = { type: "dot", of: root, name: name, ...loc() }
+          })
           return root
         },
       peg$c79 = function(target, args) {
           if (args.length == 0) {
             return target
           } else {
-            return { type: "invoke", target: target, args: args }
+            return { type: "invoke", target: target, args: args, ...loc() }
           }
         },
-      peg$c80 = function(name) { return { type: "builtin", name: name } },
-      peg$c81 = function() { return { type: "root" } },
-      peg$c82 = function(chars) { return { type: "invalid", content: chars.join("") } },
+      peg$c80 = function(name) { return { type: "builtin", name: name, ...loc() } },
+      peg$c81 = function() { return { type: "root", ...loc() } },
+      peg$c82 = function(chars) { return { type: "invalid", content: chars.join(""), ...loc() } },
       peg$c83 = peg$otherExpectation("identifier"),
       peg$c84 = /^[A-Za-z_]/,
       peg$c85 = peg$classExpectation([["A", "Z"], ["a", "z"], "_"], false, false),
@@ -272,7 +276,7 @@ function peg$parse(input, options) {
       peg$c91 = peg$literalExpectation("-", false),
       peg$c92 = "+",
       peg$c93 = peg$literalExpectation("+", false),
-      peg$c94 = function() { return { type: "number", value: parseFloat(text()) }; },
+      peg$c94 = function() { return { type: "number", value: parseFloat(text()), ...loc() } },
       peg$c95 = /^[eE]/,
       peg$c96 = peg$classExpectation(["e", "E"], false, false),
       peg$c97 = /^[0-9]/,
@@ -285,7 +289,9 @@ function peg$parse(input, options) {
       peg$c104 = peg$literalExpectation("\"", false),
       peg$c105 = /^[^"]/,
       peg$c106 = peg$classExpectation(["\""], true, false),
-      peg$c107 = function(chars) { return { type: "string", content: chars.join("") } },
+      peg$c107 = function(chars) {
+          return { type: "string", content: chars.join(""), ...loc() }
+        },
       peg$c108 = "`",
       peg$c109 = peg$literalExpectation("`", false),
       peg$c110 = /^[^`]/,
@@ -294,9 +300,11 @@ function peg$parse(input, options) {
       peg$c113 = peg$literalExpectation("'", false),
       peg$c114 = /^[^']/,
       peg$c115 = peg$classExpectation(["'"], true, false),
-      peg$c116 = function(chars) { return { type: "char", content: chars.join("") } },
+      peg$c116 = function(chars) {
+          return { type: "char", content: chars.join(""), ...loc() }
+        },
       peg$c117 = peg$otherExpectation("comment"),
-      peg$c118 = function(chars) { return { type: "comment", content: chars.join("") } },
+      peg$c118 = function(chars) { return { type: "comment", content: chars.join(""), ...loc() } },
       peg$c119 = "/*",
       peg$c120 = peg$literalExpectation("/*", false),
       peg$c121 = "*/",
@@ -2817,6 +2825,18 @@ function peg$parse(input, options) {
 
     return s0;
   }
+
+
+    // Define a convenience function for "spreading" location info into a node.
+    // (i.e. `...loc()`)
+    function loc() {
+      const loc = location()
+      return {
+        beginOffset: loc.start.offset,
+        finalOffset: loc.end.offset,
+      }
+    }
+
 
   peg$result = peg$startRuleFunction();
 
