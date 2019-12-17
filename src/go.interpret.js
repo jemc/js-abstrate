@@ -3,13 +3,23 @@
 const interpret = {}
 module.exports = interpret
 
+// To escape a result, invoke the escapeFn function unless instructed not to.
+interpret._maybeEscape = (result, runtime) => {
+  if (result.value.alreadyEscaped) {
+    return result.value.escaped
+  } else {
+    return runtime.escapeFn(result.value, result.from)
+  }
+}
+
 // To interpret a body, interpret the nodes then flatten them to a string value.
 interpret.body = (nodes, data, runtimeProto) => {
   const runtime = Object.assign({}, runtimeProto)
-  const value =
+  const escapedValue =
     interpret.nodes(nodes, data, runtime).reduce((accum, chunk) => {
-      return accum + chunk.value
+      return accum + interpret._maybeEscape(chunk, runtime)
     }, "")
+  const value = { alreadyEscaped: true, escaped: escapedValue }
   return { value: value, from: nodes }
 }
 
@@ -33,7 +43,7 @@ interpret.text = (node, data, runtime) => {
   let value = node.content
   if (node.trimLeft) { value = value.replace(/^\s+/, "") }
   if (node.trimRight) { value = value.replace(/\s+$/, "") }
-  return value
+  return { alreadyEscaped: true, escaped: value }
 }
 
 // A number node returns the number value as a number.
@@ -42,7 +52,6 @@ interpret.number = (node, data, runtime) => {
 }
 
 // A string node returns the string content as a string.
-// TODO: handle escaping?
 interpret.string = (node, data, runtime) => {
   return node.content
 }
@@ -106,13 +115,13 @@ interpret.range = (node, data, runtime) => {
   const list = interpret.node(node.term, data, runtime).value
   if (Array.isArray(list)) {
     if (list.length > 0) {
-      const value =
+      const escapedValue =
         list.map((element) => {
-          return interpret.body(node.body, element, runtime).value
-        }).reduce((accum, child) => {
-          return accum + child
+          return interpret.body(node.body, element, runtime)
+        }).reduce((accum, chunk) => {
+          return accum + interpret._maybeEscape(chunk, runtime)
         }, "")
-      return value
+      return { alreadyEscaped: true, escaped: escapedValue }
     } else {
       return interpret.body(node.elseBody, data, runtime).value
     }

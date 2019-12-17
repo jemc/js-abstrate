@@ -8,8 +8,9 @@ go.render = (template, data, opts = {}) => {
   const runtime = {
     builtin: Object.assign(Object.assign({}, opts.functions), go.builtin),
     variables: opts.variables || {},
+    escapeFn: (x) => { return x },
   }
-  return go.interpret.body(go.parse(template), data, runtime).value
+  return go.interpret.body(go.parse(template), data, runtime).value.escaped
 }
 
 module.exports = {
