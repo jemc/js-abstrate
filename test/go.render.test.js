@@ -226,6 +226,29 @@ describe("Abstrate.go.render", () => {
 
   it("is fully compatible with how the real Go `printf` function works")
 
+  it("respects an 'already escaped' wrapper value to skip escaping", () => {
+    // Define an escaping function that escapes everything but letters.
+    const escapeFn = (string) => {
+      const replacePattern = /[^A-Za-z]/g
+      return string.replace(replacePattern, (c) => {
+        return "%" + c.charCodeAt(0).toString(16);
+      })
+    }
+
+    // Define a "no escape" function that wraps in an "already escaped" value.
+    const noEscape = (value) => {
+      return { alreadyEscaped: true, escaped: value }
+    }
+
+    // Prove that our "no escape" function causes escaping to be skipped.
+    const result = Abstrate.go.render(
+      "{{ `one!` }}...{{ `two!` | noEscape }}",
+      {},
+      { escapeFn: escapeFn, functions: { noEscape: noEscape } }
+    )
+    assert.equal(result, "one%21...two!")
+  })
+
   it("mutates the variables object to show the results of execution", () => {
     const vars = { Example1: "one" }
     Abstrate.go.render("{{ $Example2 := `two` }}", {}, { variables: vars })
