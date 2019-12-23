@@ -92,13 +92,12 @@ describe("Abstrate.go.render", () => {
     }, { message: "template variable not known in this scope: $y" })
   })
 
-  it("throws an error when a variable is declared more than once", () => {
-    assert.throws(() => {
-      Abstrate.go.render(
-        "{{ $x := `x` }}{{ $y := `y` }}{{ $x := `X` }}",
-        {},
-      )
-    }, { message: "template variable already declared: $x" })
+  it("allows shadowing an existing variable with a new declaration", () => {
+    const result = Abstrate.go.render(
+      "{{ $x := `one` }}{{ $x := `two` }}{{ $x }}",
+      {},
+    )
+    assert.equal(result, "two")
   })
 
   it("throws an error when an attribute is not found", () => {

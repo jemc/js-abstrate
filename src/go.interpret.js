@@ -67,9 +67,6 @@ interpret.root = (node, data, runtime) => {
 interpret.declare = (node, data, runtime) => {
   const value = interpret.node(node.value, data, runtime).value
   const variables = runtime.variables = runtime.variables || {}
-  if (node.name in variables) {
-    throw new Error("template variable already declared: $" + node.name)
-  }
   variables[node.name] = value
   return ""
 }
