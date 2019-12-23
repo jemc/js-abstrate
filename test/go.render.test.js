@@ -109,6 +109,21 @@ describe("Abstrate.go.render", () => {
     assert.equal(result, "two")
   })
 
+  it("allows shadowing variables temporarily within block blocks", () => {
+    const result = Abstrate.go.render(
+      "{{ $x := `outer` }}" +
+      "{{ block `one` }}{{ $x := `middle` }}" +
+      "{{ block `two` }}{{ $x := `inner` }}" +
+      " {{ $x }}" +
+      "{{ end }}" +
+      " {{ $x }}" +
+      "{{ end }}" +
+      " {{ $x }}",
+      {},
+    )
+    assert.equal(result, " inner middle outer")
+  })
+
   it("allows shadowing variables temporarily within if blocks", () => {
     const result = Abstrate.go.render(
       "{{ $x := `outer` }}" +

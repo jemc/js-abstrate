@@ -109,6 +109,11 @@ interpret.variable = (node, data, runtime) => {
   throw new Error("template variable not known in this scope: $" + node.name)
 }
 
+// A block block interprets the body of the block in a nested scope.
+interpret.block = (node, data, runtime) => {
+  return interpret.scope(node.body, data, runtime).value
+}
+
 // An if block interprets either the body or elseBody, based on its term.
 interpret.if = (node, data, runtime) => {
   if (interpret.node(node.term, data, runtime).value) {
