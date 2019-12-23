@@ -116,13 +116,18 @@ ifelseifblock
     { return { type: "if", term: term, body: body, elseBody: elseBody, ...loc() } }
 
 rangeblock "range block"
-  = rangewithindexblock
+  = rangewithdeclareindexandvalueblock
+  / rangewithdeclarevalueblock
   / "range" term:expr body:rangeblockbody
     { return { type: "range", term: term, ...body, ...loc() } }
 
-rangewithindexblock
-  = "range" ws index:variable ", " ws term:expr body:rangeblockbody
-    { return { type: "range", declareIndex: index, term: term, ...body, ...loc() } }
+rangewithdeclarevalueblock
+  = "range" ws value:variable ws ":=" ws term:expr body:rangeblockbody
+    { return { type: "range", declareValue: value, term: term, ...body, ...loc() } }
+
+rangewithdeclareindexandvalueblock
+  = "range" ws index:variable ws "," ws value:variable ws ":=" ws term:expr body:rangeblockbody
+    { return { type: "range", declareIndex: index, declareValue: value, term: term, ...body, ...loc() } }
 
 rangeblockbody
   = body:blockbody elseBody:blockelsebody? blockend

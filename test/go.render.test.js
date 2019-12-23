@@ -75,6 +75,15 @@ describe("Abstrate.go.render", () => {
     assert.equal(result, "?!")
   })
 
+  it("renders a range block with value variable declared", () => {
+    var result
+    const template =
+      "{{ range $Char := .Chars }} {{ $Char }}{{ end }}"
+
+    result = Abstrate.go.render(template, { Chars: ["a", "b", "c"]})
+    assert.equal(result, " a b c")
+  })
+
   it("renders the value of a prior defined variable", () => {
     const result = Abstrate.go.render(
       "{{ $subject := `World` }}Hello, {{ $subject }}!",
@@ -98,6 +107,49 @@ describe("Abstrate.go.render", () => {
       {},
     )
     assert.equal(result, "two")
+  })
+
+  it("allows shadowing variables temporarily within if blocks", () => {
+    const result = Abstrate.go.render(
+      "{{ $x := `outer` }}" +
+      "{{ if true }}{{ $x := `middle` }}" +
+      "{{ if true }}{{ $x := `inner` }}" +
+      " {{ $x }}" +
+      "{{ end }}" +
+      " {{ $x }}" +
+      "{{ end }}" +
+      " {{ $x }}",
+      {},
+    )
+    assert.equal(result, " inner middle outer")
+  })
+
+  it("allows shadowing variables temporarily within range blocks", () => {
+    const result = Abstrate.go.render(
+      "{{ $index := 99 }}" +
+      "{{ $value := `z` }}" +
+      "{{ range $index, $value := .Chars }}" +
+      "{{ $index }}:{{ $value }}, " +
+      "{{ end }}" +
+      "{{ $index }}:{{ $value }}",
+      { Chars: ["a", "b", "c"] },
+    )
+    assert.equal(result, "0:a, 1:b, 2:c, 99:z")
+  })
+
+  it("allows assigning to variables declared in an outer scope", () => {
+    const result = Abstrate.go.render(
+      "{{ $x := `outer` }}" +
+      "{{ if true }}{{ $x = `middle` }}" +
+      "{{ if true }}{{ $x = `inner` }}" +
+      " {{ $x }}" +
+      "{{ end }}" +
+      " {{ $x }}" +
+      "{{ end }}" +
+      " {{ $x }}",
+      {},
+    )
+    assert.equal(result, " inner inner inner")
   })
 
   it("throws an error when an attribute is not found", () => {

@@ -953,21 +953,21 @@ describe("Abstrate.go.parse", () => {
     assert.deepEqual(result, [
       {
         "type": "range",
-        "term": {
-          "type": "declare",
+        "declareValue": {
+          "type": "variable",
           "name": "x",
-          "value": {
-            "type": "dot",
-            "of": {
-              "type": "root",
-              "beginOffset": 14,
-              "finalOffset": 17
-            },
-            "name": "SI",
+          "beginOffset": 8,
+          "finalOffset": 10
+        },
+        "term": {
+          "type": "dot",
+          "of": {
+            "type": "root",
             "beginOffset": 14,
             "finalOffset": 17
           },
-          "beginOffset": 8,
+          "name": "SI",
+          "beginOffset": 14,
           "finalOffset": 17
         },
         "body": [
@@ -997,21 +997,21 @@ describe("Abstrate.go.parse", () => {
           "beginOffset": 8,
           "finalOffset": 10
         },
-        "term": {
-          "type": "declare",
+        "declareValue": {
+          "type": "variable",
           "name": "y",
-          "value": {
-            "type": "dot",
-            "of": {
-              "type": "root",
-              "beginOffset": 18,
-              "finalOffset": 21
-            },
-            "name": "SI",
+          "beginOffset": 12,
+          "finalOffset": 14
+        },
+        "term": {
+          "type": "dot",
+          "of": {
+            "type": "root",
             "beginOffset": 18,
             "finalOffset": 21
           },
-          "beginOffset": 12,
+          "name": "SI",
+          "beginOffset": 18,
           "finalOffset": 21
         },
         "body": [

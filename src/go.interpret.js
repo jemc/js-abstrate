@@ -12,9 +12,16 @@ interpret._maybeEscape = (result, runtime) => {
   }
 }
 
+// To interpret a scope, begin the scope, interpret the body, and end the scope.
+interpret.scope = (nodes, data, runtime) => {
+  runtime.variableScopes.unshift({})
+  const result = interpret.body(nodes, data, runtime)
+  runtime.variableScopes.shift({})
+  return result
+}
+
 // To interpret a body, interpret the nodes then flatten them to a string value.
-interpret.body = (nodes, data, runtimeProto) => {
-  const runtime = Object.assign({}, runtimeProto)
+interpret.body = (nodes, data, runtime) => {
   const escapedValue =
     interpret.nodes(nodes, data, runtime).reduce((accum, chunk) => {
       return accum + interpret._maybeEscape(chunk, runtime)
@@ -66,7 +73,8 @@ interpret.root = (node, data, runtime) => {
 // Returns an empty string, so as not to affect the template output.
 interpret.declare = (node, data, runtime) => {
   const value = interpret.node(node.value, data, runtime).value
-  const variables = runtime.variables = runtime.variables || {}
+  // We always declare a variable in the current (innermost) scope in the stack.
+  const variables = runtime.variableScopes[0]
   variables[node.name] = value
   return ""
 }
@@ -76,31 +84,37 @@ interpret.declare = (node, data, runtime) => {
 // Returns an empty string, so as not to affect the template output.
 interpret.assign = (node, data, runtime) => {
   const value = interpret.node(node.value, data, runtime).value
-  const variables = runtime.variables = runtime.variables || {}
-  if (node.name in variables) {
-    variables[node.name] = value
-  } else {
-    throw new Error("template variable not known in this scope: $" + node.name)
+  // Search each variable scope in the stack, starting with the innermost scope.
+  for (const variables of runtime.variableScopes) {
+    // If this is the scope where the variable is, assign the value and return.
+    if (node.name in variables) {
+      variables[node.name] = value
+      return ""
+    }
   }
-  return ""
+  // If we reach this, we didn't find the variable in the entire scope stack.
+  throw new Error("template variable not known in this scope: $" + node.name)
 }
 
 // A variable node returns the current value of the named variable.
 interpret.variable = (node, data, runtime) => {
-  const variables = runtime.variables = runtime.variables || {}
-  if (node.name in variables) {
-    return variables[node.name]
-  } else {
-    throw new Error("template variable not known in this scope: $" + node.name)
+  // Search each variable scope in the stack, starting with the innermost scope.
+  for (const variables of runtime.variableScopes) {
+    // If this is the scope where the variable is, return the current value.
+    if (node.name in variables) {
+      return variables[node.name]
+    }
   }
+  // If we reach this, we didn't find the variable in the entire scope stack.
+  throw new Error("template variable not known in this scope: $" + node.name)
 }
 
 // An if block interprets either the body or elseBody, based on its term.
 interpret.if = (node, data, runtime) => {
   if (interpret.node(node.term, data, runtime).value) {
-    return interpret.body(node.body, data, runtime).value
+    return interpret.scope(node.body, data, runtime).value
   } else {
-    return interpret.body(node.elseBody, data, runtime).value
+    return interpret.scope(node.elseBody, data, runtime).value
   }
 }
 
@@ -112,15 +126,25 @@ interpret.range = (node, data, runtime) => {
   const list = interpret.node(node.term, data, runtime).value
   if (Array.isArray(list)) {
     if (list.length > 0) {
-      const escapedValue =
-        list.map((element) => {
-          return interpret.body(node.body, element, runtime)
-        }).reduce((accum, chunk) => {
-          return accum + interpret._maybeEscape(chunk, runtime)
-        }, "")
+      let index = 0
+      let escapedValue = ""
+      list.forEach((element) => {
+        const extraVars = {}
+        if (node.declareValue) {
+          extraVars[node.declareValue.name] = element
+        }
+        if (node.declareIndex) {
+          extraVars[node.declareIndex.name] = index
+          index = index + 1
+        }
+        runtime.variableScopes.unshift(extraVars)
+        const chunk = interpret.scope(node.body, element, runtime)
+        escapedValue = escapedValue + interpret._maybeEscape(chunk, runtime)
+        runtime.variableScopes.shift()
+      })
       return { alreadyEscaped: true, escaped: escapedValue }
     } else {
-      return interpret.body(node.elseBody, data, runtime).value
+      return interpret.scope(node.elseBody, data, runtime).value
     }
   } else {
     throw new Error("can't range over a value that is not an array: " +

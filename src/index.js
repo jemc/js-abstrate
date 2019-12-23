@@ -8,7 +8,7 @@ go.htmlEscape = require("./go.htmlEscape.js")
 go.render = (template, data, opts = {}) => {
   const runtime = {
     builtin: Object.assign(Object.assign({}, opts.functions), go.builtin),
-    variables: opts.variables || {},
+    variableScopes: [opts.variables || {}],
     escapeFn: opts.escapeFn || ((string, node) => { return string }),
   }
   return go.interpret.body(go.parse(template), data, runtime).value.escaped
