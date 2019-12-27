@@ -1,5 +1,5 @@
 export const go = {
-  parse: require("./go.ts").parse,
+  parse: require("./go.parse.ts").parse,
   builtin: require("./go.builtin.ts").builtin,
   interpret: require("./go.interpret.ts").interpret,
   htmlEscape: require("./go.htmlEscape.ts").htmlEscape,
