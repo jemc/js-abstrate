@@ -23,7 +23,7 @@ root = roottmpl / roottextonly
 roottmpl
   = first:textfirst ws list:(text / expr)* ws last:textlast
     {
-      let result = []
+      let result: any[] = []
       if (first.content.length > 0) { result.push(first) }
       list.forEach((x) => {
         if (x.type != "text" || x.content.length > 0) { result.push(x) }
@@ -142,7 +142,7 @@ blockelsebody
 
 blockbody "block body"
   = first:text lists:(blockexpr text)* {
-      var result = []
+      let result: any[] = []
       if (first.content.length > 0) { result.push(first) }
       lists.forEach((list) => {
         list.forEach((x) => {

@@ -1,6 +1,5 @@
-"use strict"
-const assert = require("assert")
-const Abstrate = require("../src")
+import assert from "assert"
+import Abstrate from "../src"
 
 describe("Abstrate.go.render", () => {
   it("renders a simple dot attribute", () => {

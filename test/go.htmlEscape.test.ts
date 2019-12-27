@@ -1,6 +1,6 @@
-"use strict"
-const assert = require("assert")
-const Abstrate = require("../src")
+import "mocha"
+import * as assert from "assert"
+import * as Abstrate from "../src"
 
 const render = (template, data) => {
   return Abstrate.go.render(template, data, {

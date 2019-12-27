@@ -1,7 +1,4 @@
-"use strict"
-
-const interpret = {}
-module.exports = interpret
+export const interpret: any = {}
 
 // To escape a result, invoke the escapeFn function unless instructed not to.
 interpret._maybeEscape = (result, runtime) => {

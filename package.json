@@ -2,10 +2,15 @@
   "name": "abstrate",
   "version": "1.0.1",
   "description": "Compile templates to abstract syntax trees (ASTs); compatible with Go templates.",
-  "main": "src/index.js",
+  "main": "lib/index.js",
+  "files": [
+    "/lib"
+  ],
   "scripts": {
-    "test": "mocha",
-    "gen": "sh -c 'cd src && echo go.pegjs && pegjs go.pegjs'"
+    "test": "mocha -r ts-node/register test/**/*.test.ts",
+    "gen": "sh -c 'cd src && echo go.pegjs && pegjs --plugin ts-pegjs -o go.ts go.pegjs'",
+    "build": "npm run gen && tsc",
+    "prepare": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -26,9 +31,13 @@
   },
   "homepage": "https://github.com/jemc/js-abstrate#readme",
   "devDependencies": {
+    "@types/mocha": "^5.2.7",
     "mocha": "^6.2.2",
     "pegjs": "^0.10.0",
-    "semantic-release": "^15.13.31"
+    "semantic-release": "^15.13.31",
+    "ts-node": "^8.5.4",
+    "ts-pegjs": "^0.2.6",
+    "typescript": "^3.7.4"
   },
   "dependencies": {
     "hyntax": "^1.1.2"

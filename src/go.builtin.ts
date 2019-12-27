@@ -1,8 +1,5 @@
-"use strict"
-
-const PRIVATE = {}
-const builtin = {}
-module.exports = builtin
+export const PRIVATE: any = {}
+export const builtin: any = {}
 
 // Some constant immediate values that can be referenced.
 builtin.true = true

@@ -1,6 +1,5 @@
-"use strict"
-const assert = require("assert")
-const Abstrate = require("../src")
+import assert from "assert"
+import Abstrate from "../src"
 
 // A utility function for easily printing the result of a parse call.
 const show = (x) => { console.log(JSON.stringify(x, null, 2)) }

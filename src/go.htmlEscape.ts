@@ -1,14 +1,12 @@
-"use strict"
-const hyntax = require("hyntax")
+import * as hyntax from "hyntax"
 
-const internal = {}
-
-module.exports = (template) => {
+export const internal: any = {}
+export function htmlEscape(template: string) {
   // First, tokenize the template string into HTML syntax tokens.
   // These will be used to figure out where we are (syntactically) in the HTML.
   const tokens = hyntax.tokenize(template).tokens
 
-  return (string, node) => {
+  return (string: string, node) => {
     // Find the first token which encompasses the begin offset of this AST node.
     // We also have some closure side-effects here for tracking some state
     // based on recent tokens occurring just prior to the token that we find.
@@ -22,7 +20,7 @@ module.exports = (template) => {
       // Return true if this token encompasses the beginning of this AST node.
       return token.endPosition > node.beginOffset
         && token.startPosition < node.beginOffset
-    })
+    })!
 
     // Based on the token type we found, use the correct escaping approach.
     switch (token.type) {
