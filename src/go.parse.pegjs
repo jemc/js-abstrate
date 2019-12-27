@@ -25,7 +25,7 @@ roottmpl
     {
       let result: any[] = []
       if (first.content.length > 0) { result.push(first) }
-      list.forEach((x) => {
+      list.forEach((x: any) => {
         if (x.type != "text" || x.content.length > 0) { result.push(x) }
       })
       if (last.content.length > 0) { result.push(last) }
@@ -144,8 +144,8 @@ blockbody "block body"
   = first:text lists:(blockexpr text)* {
       let result: any[] = []
       if (first.content.length > 0) { result.push(first) }
-      lists.forEach((list) => {
-        list.forEach((x) => {
+      lists.forEach((list: any[]) => {
+        list.forEach((x: any) => {
           if (x.type != "text" || x.content.length > 0) { result.push(x) }
         })
       })
@@ -183,7 +183,7 @@ variable
 pipeline "pipeline"
   = first:pipelineexpr rest:(ws "|" ws pipelineexpr)* {
     var root = first
-    rest.forEach((r) => {
+    rest.forEach((r: any) => {
       root = { type: "pipe", from: root, to: r[3], ...loc() }
     })
     return root
@@ -198,7 +198,7 @@ pipelinedotident
 pipelinedots
   = ws root:atom? names:pipelinedotident+ ws {
     var root = root || { type: "root", ...loc() }
-    names.forEach((name) => {
+    names.forEach((name: string) => {
       root = { type: "dot", of: root, name: name, ...loc() }
     })
     return root

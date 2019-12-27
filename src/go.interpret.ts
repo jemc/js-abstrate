@@ -1,8 +1,14 @@
 export const Interpret: any = {}
 export default Interpret
 
+export interface IGoInterpretRuntime {
+  builtin: object
+  variableScopes: Array<object>
+  escapeFn(string: string, node: any): string
+}
+
 // To escape a result, invoke the escapeFn function unless instructed not to.
-Interpret._maybeEscape = (result, runtime) => {
+Interpret._maybeEscape = (result: any, runtime: IGoInterpretRuntime) => {
   if (result.value.alreadyEscaped) {
     return result.value.escaped
   } else {
@@ -11,17 +17,17 @@ Interpret._maybeEscape = (result, runtime) => {
 }
 
 // To interpret a scope, begin the scope, interpret the body, and end the scope.
-Interpret.scope = (nodes, data, runtime) => {
+Interpret.scope = (nodes: any[], data: any, runtime: IGoInterpretRuntime) => {
   runtime.variableScopes.unshift({})
   const result = Interpret.body(nodes, data, runtime)
-  runtime.variableScopes.shift({})
+  runtime.variableScopes.shift()
   return result
 }
 
 // To interpret a body, interpret the nodes then flatten them to a string value.
-Interpret.body = (nodes, data, runtime) => {
+Interpret.body = (nodes: any[], data: any, runtime: IGoInterpretRuntime) => {
   const escapedValue =
-    Interpret.nodes(nodes, data, runtime).reduce((accum, chunk) => {
+    Interpret.nodes(nodes, data, runtime).reduce((accum: string, chunk: any) => {
       return accum + Interpret._maybeEscape(chunk, runtime)
     }, "")
   const value = { alreadyEscaped: true, escaped: escapedValue }
@@ -29,12 +35,12 @@ Interpret.body = (nodes, data, runtime) => {
 }
 
 // To interpret a list of nodes, interpret each node and return the list.
-Interpret.nodes = (nodes, data, runtime) => {
+Interpret.nodes = (nodes: any[], data: any, runtime: IGoInterpretRuntime) => {
   return nodes.map((node) => { return Interpret.node(node, data, runtime) })
 }
 
 // To interpret a node, delegate to the type-specific function for that node.
-Interpret.node = (node, data, runtime) => {
+Interpret.node = (node: any, data: any, runtime: IGoInterpretRuntime) => {
   if (node.type in Interpret) {
     return { value: Interpret[node.type](node, data, runtime), from: node }
   } else {
@@ -44,7 +50,7 @@ Interpret.node = (node, data, runtime) => {
 
 // A text node returns the raw text content of the node (a string).
 // The trimLeft/trimRight options specify to trim leading/trailing whitespace.
-Interpret.text = (node, data, runtime) => {
+Interpret.text = (node: any, data: any, runtime: IGoInterpretRuntime) => {
   let value = node.content
   if (node.trimLeft) { value = value.replace(/^\s+/, "") }
   if (node.trimRight) { value = value.replace(/\s+$/, "") }
@@ -52,27 +58,27 @@ Interpret.text = (node, data, runtime) => {
 }
 
 // A number node returns the number value as a number.
-Interpret.number = (node, data, runtime) => {
+Interpret.number = (node: any, data: any, runtime: IGoInterpretRuntime) => {
   return node.value
 }
 
 // A string node returns the string content as a string.
-Interpret.string = (node, data, runtime) => {
+Interpret.string = (node: any, data: any, runtime: IGoInterpretRuntime) => {
   return node.content
 }
 
 // A root node simply returns the root of the data passed in.
-Interpret.root = (node, data, runtime) => {
+Interpret.root = (node: any, data: any, runtime: IGoInterpretRuntime) => {
   return data
 }
 
 // A declare node introduces a new variable to the runtime, with a value.
 // Throws an error if a variable with this name was already declared.
 // Returns an empty string, so as not to affect the template output.
-Interpret.declare = (node, data, runtime) => {
+Interpret.declare = (node: any, data: any, runtime: IGoInterpretRuntime) => {
   const value = Interpret.node(node.value, data, runtime).value
   // We always declare a variable in the current (innermost) scope in the stack.
-  const variables = runtime.variableScopes[0]
+  const variables: any = runtime.variableScopes[0]
   variables[node.name] = value
   return ""
 }
@@ -80,13 +86,13 @@ Interpret.declare = (node, data, runtime) => {
 // An assign node sets a new value for a variable already known to the runtime.
 // Throws an error if no variable with this name was already declared.
 // Returns an empty string, so as not to affect the template output.
-Interpret.assign = (node, data, runtime) => {
+Interpret.assign = (node: any, data: any, runtime: IGoInterpretRuntime) => {
   const value = Interpret.node(node.value, data, runtime).value
   // Search each variable scope in the stack, starting with the innermost scope.
   for (const variables of runtime.variableScopes) {
     // If this is the scope where the variable is, assign the value and return.
     if (node.name in variables) {
-      variables[node.name] = value
+      (variables as any)[node.name] = value
       return ""
     }
   }
@@ -95,12 +101,12 @@ Interpret.assign = (node, data, runtime) => {
 }
 
 // A variable node returns the current value of the named variable.
-Interpret.variable = (node, data, runtime) => {
+Interpret.variable = (node: any, data: any, runtime: IGoInterpretRuntime) => {
   // Search each variable scope in the stack, starting with the innermost scope.
   for (const variables of runtime.variableScopes) {
     // If this is the scope where the variable is, return the current value.
     if (node.name in variables) {
-      return variables[node.name]
+      return (variables as any)[node.name]
     }
   }
   // If we reach this, we didn't find the variable in the entire scope stack.
@@ -108,12 +114,12 @@ Interpret.variable = (node, data, runtime) => {
 }
 
 // A block block interprets the body of the block in a nested scope.
-Interpret.block = (node, data, runtime) => {
+Interpret.block = (node: any, data: any, runtime: IGoInterpretRuntime) => {
   return Interpret.scope(node.body, data, runtime).value
 }
 
 // An if block interprets either the body or elseBody, based on its term.
-Interpret.if = (node, data, runtime) => {
+Interpret.if = (node: any, data: any, runtime: IGoInterpretRuntime) => {
   if (Interpret.node(node.term, data, runtime).value) {
     return Interpret.scope(node.body, data, runtime).value
   } else {
@@ -125,7 +131,7 @@ Interpret.if = (node, data, runtime) => {
 // The "root" data within the block context is the value of the element.
 // If there are zero elements, the elseBody is interpreted instead.
 // Throws an error if the term is not an array.
-Interpret.range = (node, data, runtime) => {
+Interpret.range = (node: any, data: any, runtime: IGoInterpretRuntime) => {
   const list = Interpret.node(node.term, data, runtime).value
   if (Array.isArray(list)) {
     if (list.length > 0) {
@@ -134,10 +140,10 @@ Interpret.range = (node, data, runtime) => {
       list.forEach((element) => {
         const extraVars = {}
         if (node.declareValue) {
-          extraVars[node.declareValue.name] = element
+          (extraVars as any)[node.declareValue.name] = element
         }
         if (node.declareIndex) {
-          extraVars[node.declareIndex.name] = index
+          (extraVars as any)[node.declareIndex.name] = index
           index = index + 1
         }
         runtime.variableScopes.unshift(extraVars)
@@ -156,7 +162,7 @@ Interpret.range = (node, data, runtime) => {
 }
 
 // A dot node returns the named member of the data passed in.
-Interpret.dot = (node, data, runtime) => {
+Interpret.dot = (node: any, data: any, runtime: IGoInterpretRuntime) => {
   const object = Interpret.node(node.of, data, runtime).value
   if (typeof object === "object" && node.name in object) {
     return object[node.name]
@@ -167,9 +173,9 @@ Interpret.dot = (node, data, runtime) => {
 }
 
 // A builtin node retrieves a given named thing from the runtime.
-Interpret.builtin = (node, data, runtime) => {
+Interpret.builtin = (node: any, data: any, runtime: IGoInterpretRuntime) => {
   if (node.name in runtime.builtin) {
-    return runtime.builtin[node.name]
+    return (runtime.builtin as any)[node.name]
   } else {
     throw new Error("builtin \"" + node.name + "\" not found within runtime: " +
       JSON.stringify(runtime))
@@ -177,10 +183,10 @@ Interpret.builtin = (node, data, runtime) => {
 }
 
 // An invoke node calls its target as a function with the given args' values.
-Interpret.invoke = (node, data, runtime) => {
+Interpret.invoke = (node: any, data: any, runtime: IGoInterpretRuntime) => {
   const target = Interpret.node(node.target, data, runtime).value
   if (typeof target === "function") {
-    const args = node.args.map((arg) => {
+    const args = node.args.map((arg: any) => {
       return Interpret.node(arg, data, runtime).value
     })
     return Reflect.apply(target, undefined, args)
@@ -193,7 +199,7 @@ Interpret.invoke = (node, data, runtime) => {
 // A pipe node is syntax sugar for an invoke node.
 // When the right side is an invoke, the left side is added as another arg.
 // Otherwise, the right side becomes the target for the invoke.
-Interpret.pipe = (node, data, runtime) => {
+Interpret.pipe = (node: any, data: any, runtime: IGoInterpretRuntime) => {
   if (node.to.type === "invoke") {
     const invoke = node.to
     return Interpret.invoke({

@@ -2,7 +2,7 @@ import "mocha"
 import * as assert from "assert"
 import * as Abstrate from "../src"
 
-const render = (template, data) => {
+const render = (template: string, data: any) => {
   return Abstrate.go.render(template, data, {
     escapeFn: Abstrate.go.htmlEscape(template),
   })

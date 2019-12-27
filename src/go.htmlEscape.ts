@@ -1,16 +1,16 @@
 import * as hyntax from "hyntax"
 
-export const internal: any = {}
+export const internal: object = {}
 function htmlEscape(template: string) {
   // First, tokenize the template string into HTML syntax tokens.
   // These will be used to figure out where we are (syntactically) in the HTML.
   const tokens = hyntax.tokenize(template).tokens
 
-  return (string: string, node) => {
+  return (string: string, node: any) => {
     // Find the first token which encompasses the begin offset of this AST node.
     // We also have some closure side-effects here for tracking some state
     // based on recent tokens occurring just prior to the token that we find.
-    var lastAttrName
+    let lastAttrName: string = ""
     const token = tokens.find((token) => {
       // As a side-effect, capture the attribute name if this token is one.
       if (token.type == "token:attribute-key") {
@@ -26,18 +26,22 @@ function htmlEscape(template: string) {
     switch (token.type) {
       // Attribute values are escaped based on the name of the attribute.
       case "token:attribute-value":
-        return internal.fnForAttrName(lastAttrName)(string)
+        return escapeFnForAttr(lastAttrName)(string)
 
       // Normal text and everything else are escaped "normally" (for HTML).
       case "token:text":
       default:
-        return internal.htmlEscape(string)
+        return escapeAsHTML(string)
     }
   }
 }
 export default htmlEscape
 
-internal.htmlEscape = (string) => {
+interface IEscapeFn {
+  (string: string): string
+}
+
+function escapeAsHTML(string: string): string {
   return string
     .replace(/\x00/g, "\uFFFD")
     .replace(/&/g, "&amp;")
@@ -48,14 +52,14 @@ internal.htmlEscape = (string) => {
     .replace(/>/g, "&gt;")
 }
 
-internal.uriEscape = (string) => {
+function escapeAsURI(string: string): string {
   const replacePattern = /(?!%\h\h)[^A-Za-z0-9\-._~!#$&*+,/:;=?@[\]]/g
   return string.replace(replacePattern, (c) => {
     return "%" + c.charCodeAt(0).toString(16);
   })
 }
 
-internal.fnForAttrName = (attrName) => {
+function escapeFnForAttr(attrName: string): IEscapeFn {
   // See https://www.w3.org/TR/html5/Overview.html#attributes-1
   // See https://www.w3.org/TR/html4/index/attributes.html
   switch (attrName) {
@@ -76,7 +80,7 @@ internal.fnForAttrName = (attrName) => {
     case "src":
     case "usemap":
     case "xmlns":
-      return internal.uriEscape
+      return escapeAsURI
     case "accept-charset":
     case "async":
     case "challenge":
@@ -99,14 +103,14 @@ internal.fnForAttrName = (attrName) => {
     case "sandbox":
     case "type":
     case "value":
-      return internal.htmlEscape // TODO: "unsafe" escaping
+      return escapeAsHTML // TODO: "unsafe" escaping
     case "srcdoc":
-      return internal.htmlEscape // TODO: no escaping?
+      return escapeAsHTML // TODO: no escaping?
     case "srcset":
-      return internal.htmlEscape // TODO: special-case srcset escaping
+      return escapeAsHTML // TODO: special-case srcset escaping
     case "style":
-      return internal.htmlEscape // TODO: CSS escaping
+      return escapeAsHTML // TODO: CSS escaping
     default:
-      return internal.htmlEscape
+      return escapeAsHTML
   }
 }

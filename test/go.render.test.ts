@@ -195,7 +195,7 @@ describe("Abstrate.go.render", () => {
   })
 
   it("pipes the left side into an invocation of the right side", () => {
-    const testFn = (arg) => { return `okay: ${arg}` }
+    const testFn = (arg: any) => { return `okay: ${arg}` }
 
     const result = Abstrate.go.render(
       "{{ `example` | testFn }}",
@@ -206,7 +206,7 @@ describe("Abstrate.go.render", () => {
   })
 
   it("pipes the left as a final arg when the right already invokes", () => {
-    const testFn = (...args) => { return `okay: ${JSON.stringify(args)}` }
+    const testFn = (...args: any[]) => { return `okay: ${JSON.stringify(args)}` }
 
     const result = Abstrate.go.render(
       "{{ `three` | testFn `one` `two` }}",
@@ -217,7 +217,7 @@ describe("Abstrate.go.render", () => {
   })
 
   it("supports builtin immediate values like true and false", () => {
-    const testFn = (trueValue, falseValue, nilValue) => {
+    const testFn = (trueValue: any, falseValue: any, nilValue: any) => {
       assert.equal(trueValue, true)
       assert.equal(falseValue, false)
       assert.equal(nilValue, null)
@@ -233,7 +233,7 @@ describe("Abstrate.go.render", () => {
   })
 
   it("supports number values", () => {
-    const testFn = (numberValue) => {
+    const testFn = (numberValue: any) => {
       assert.equal(numberValue, 36)
       return `okay: ${numberValue}`
     }
@@ -293,7 +293,7 @@ describe("Abstrate.go.render", () => {
 
   it("respects an 'already escaped' wrapper value to skip escaping", () => {
     // Define an escaping function that escapes everything but letters.
-    const escapeFn = (string) => {
+    const escapeFn = (string: string) => {
       const replacePattern = /[^A-Za-z]/g
       return string.replace(replacePattern, (c) => {
         return "%" + c.charCodeAt(0).toString(16);
@@ -301,7 +301,7 @@ describe("Abstrate.go.render", () => {
     }
 
     // Define a "no escape" function that wraps in an "already escaped" value.
-    const noEscape = (value) => {
+    const noEscape = (value: any) => {
       return { alreadyEscaped: true, escaped: value }
     }
 
@@ -315,7 +315,7 @@ describe("Abstrate.go.render", () => {
   })
 
   it("mutates the variables object to show the results of execution", () => {
-    const vars = { Example1: "one" }
+    const vars: any = { Example1: "one" }
     Abstrate.go.render("{{ $Example2 := `two` }}", {}, { variables: vars })
     assert.equal(vars["Example1"], "one")
     assert.equal(vars["Example2"], "two")
@@ -327,7 +327,7 @@ describe("Abstrate.go.render", () => {
       { Object: "World"},
       {
         variables: { Greeting: "Hello" },
-        functions: { exclaim: (string) => { return string + "!" } },
+        functions: { exclaim: (string: string) => { return string + "!" } },
       }
     )
     assert.equal(result, "Hello, World!")
