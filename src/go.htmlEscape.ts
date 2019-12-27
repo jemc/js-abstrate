@@ -1,7 +1,7 @@
 import * as hyntax from "hyntax"
 
 export const internal: any = {}
-export function htmlEscape(template: string) {
+function htmlEscape(template: string) {
   // First, tokenize the template string into HTML syntax tokens.
   // These will be used to figure out where we are (syntactically) in the HTML.
   const tokens = hyntax.tokenize(template).tokens
@@ -35,6 +35,7 @@ export function htmlEscape(template: string) {
     }
   }
 }
+export default htmlEscape
 
 internal.htmlEscape = (string) => {
   return string

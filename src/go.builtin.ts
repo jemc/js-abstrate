@@ -1,5 +1,6 @@
 export const PRIVATE: any = {}
 export const builtin: any = {}
+export default builtin
 
 // Some constant immediate values that can be referenced.
 builtin.true = true
