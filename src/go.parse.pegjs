@@ -12,6 +12,13 @@
       finalOffset: loc.end.offset,
     }
   }
+
+  function withLoc(node: any) {
+    const loc = location()
+    node.beginOffset = loc.start.offset
+    node.finalOffset = loc.end.offset
+    return node
+  }
 }
 
 ///
@@ -36,7 +43,7 @@ roottextonly
   = content:textbody
     {
       if (content.content.length > 0) {
-        return [{ type: "text", ...content }]
+        return [content]
       } else {
         return []
       }
@@ -46,27 +53,37 @@ roottextonly
 // A text area is any arbitrary characters, delimited by "mustaches".
 
 text
-  = left:textbegin content:textbody right:textend
-    { return { type: "text", ...content, ...left, ...right } }
+  = left:textbegin text:textbody right:textend
+    {
+      if (left.trim)  { text.trimLeft  = true }
+      if (right.trim) { text.trimRight = true }
+      return text
+    }
 
 textfirst
-  = content:textbody right:textend
-    { return { type: "text", ...content, ...right } }
+  = text:textbody right:textend
+    {
+      if (right.trim) { text.trimRight = true }
+      return text
+    }
 
 textlast
-  = left:textbegin content:textbody
-    { return { type: "text", ...content, ...left } }
+  = left:textbegin text:textbody
+    {
+      if (left.trim)  { text.trimLeft = true }
+      return text
+    }
 
 textend
-  = "{{-" { return { trimRight: true } }
+  = "{{-" { return { trim: true } }
   / "{{" { return {} }
 
 textbegin
-  = "-}}" { return { trimLeft: true } }
+  = "-}}" { return { trim: true } }
   / "}}" { return {} }
 
 textbody "text"
-  = chars:textchar* { return { content: chars.join(""), ...loc() } }
+  = chars:textchar* { return withLoc(new AST.Text(chars.join(""))) }
 
 textchar
   = !textend char:anychar { return char }
@@ -104,38 +121,43 @@ parens
 
 withblock "with block"
   = "with" term:expr body:blockbody elseBody:blockelsebody? blockend
-    { return { type: "with", term: term, body: body, elseBody: elseBody || [], ...loc() } }
+    { return withLoc(new AST.With(term, body, elseBody || [])) }
 
 ifblock "if block"
   = ifelseifblock
   / "if" term:expr body:blockbody elseBody:blockelsebody? blockend
-    { return { type: "if", term: term, body: body, elseBody: elseBody || [], ...loc() } }
+    { return withLoc(new AST.If(term, body, elseBody || [])) }
 
 ifelseifblock
   = "if" term:expr body:blockbody ws "else " ws elseBody:ifblock
-    { return { type: "if", term: term, body: body, elseBody: elseBody, ...loc() } }
+    { return withLoc(new AST.If(term, body, elseBody)) }
 
 rangeblock "range block"
   = rangewithdeclareindexandvalueblock
   / rangewithdeclarevalueblock
-  / "range" term:expr body:rangeblockbody
-    { return { type: "range", term: term, ...body, ...loc() } }
+  / "range" term:expr body:blockbody elseBody:blockelsebody? blockend
+    { return withLoc(new AST.Range(term, body, elseBody || [])) }
 
 rangewithdeclarevalueblock
-  = "range" ws value:variable ws ":=" ws term:expr body:rangeblockbody
-    { return { type: "range", declareValue: value, term: term, ...body, ...loc() } }
+  = "range" ws value:variable ws ":=" ws term:expr body:blockbody elseBody:blockelsebody? blockend
+    {
+      const node = withLoc(new AST.Range(term, body, elseBody || []))
+      node.declareValue = value
+      return node
+    }
 
 rangewithdeclareindexandvalueblock
-  = "range" ws index:variable ws "," ws value:variable ws ":=" ws term:expr body:rangeblockbody
-    { return { type: "range", declareIndex: index, declareValue: value, term: term, ...body, ...loc() } }
-
-rangeblockbody
-  = body:blockbody elseBody:blockelsebody? blockend
-    { return { body: body, elseBody: elseBody || [] } }
+  = "range" ws index:variable ws "," ws value:variable ws ":=" ws term:expr body:blockbody elseBody:blockelsebody? blockend
+    {
+      const node = withLoc(new AST.Range(term, body, elseBody || []))
+      node.declareIndex = index
+      node.declareValue = value
+      return node
+    }
 
 blockblock "block block"
   = "block" term:expr body:blockbody blockend
-    { return { type: "block", term: term, body: body, ...loc() } }
+    { return withLoc(new AST.Block(term as AST.Any, body as Array<AST.Any>)) }
 
 blockelsebody
   = blockelse body:blockbody { return body }
@@ -166,15 +188,15 @@ blockend "end"
 
 declare "variable declaration"
   = "$" name:ident ws ":=" value:expr
-    { return { type: "declare", name: name, value: value, ...loc() } }
+    { return withLoc(new AST.Declare(name, value as AST.Any)) }
 
 assign "variable assignation"
   = "$" name:ident ws "=" value:expr
-    { return { type: "assign", name: name, value: value, ...loc() } }
+    { return withLoc(new AST.Assign(name, value as AST.Any)) }
 
 variable
   = "$" name:(ident / "")
-    { return { type: "variable", name: name, ...loc() } }
+    { return withLoc(new AST.Variable(name)) }
 
 ///
 // Pipelines are complex expressions that can contain things piped into things,
@@ -182,9 +204,9 @@ variable
 
 pipeline "pipeline"
   = first:pipelineexpr rest:(ws "|" ws pipelineexpr)* {
-    var root = first
+    var root = first as AST.Any
     rest.forEach((r: any) => {
-      root = { type: "pipe", from: root, to: r[3], ...loc() }
+      root = withLoc(new AST.Pipe(root as AST.Any, r[3] as AST.Any))
     })
     return root
   }
@@ -196,10 +218,10 @@ pipelinedotident
   = "." name:ident { return name }
 
 pipelinedots
-  = ws root:atom? names:pipelinedotident+ ws {
-    var root = root || { type: "root", ...loc() }
+  = ws first:atom? names:pipelinedotident+ ws {
+    let root: AST.Any = (first || withLoc(new AST.Root)) as AST.Any
     names.forEach((name: string) => {
-      root = { type: "dot", of: root, name: name, ...loc() }
+      root = withLoc(new AST.Dot(root as AST.Any, name))
     })
     return root
   }
@@ -209,7 +231,7 @@ pipelineinvoke
     if (args.length == 0) {
       return target
     } else {
-      return { type: "invoke", target: target, args: args, ...loc() }
+      return withLoc(new AST.Invoke(target as AST.Any, args as Array<AST.Any>))
     }
   }
 
@@ -221,10 +243,10 @@ pipelineinvoketarget
 
 pipelineinvoketargetbuiltin
   = name:ident
-    { return { type: "builtin", name: name, ...loc() } }
+    { return withLoc(new AST.Builtin(name)) }
 
 pipelineroot
-  = ws "." ws { return { type: "root", ...loc() } }
+  = ws "." ws { return withLoc(new AST.Root()) }
 
 pipelineinvokearg
   = ws term:(
@@ -237,7 +259,7 @@ pipelineinvokearg
 
 invalid
   = chars:invalidchar+
-    { return { type: "invalid", content: chars.join(""), ...loc() } }
+    { return withLoc(new AST.Invalid(chars.join(""))) }
 
 invalidchar
   = !textbegin char:anychar { return char }
@@ -254,7 +276,7 @@ ident "identifier"
 
 number "number"
   = ("-" / "+")? numberint numberfrac? numberexp?
-    { return { type: "number", value: parseFloat(text()), ...loc() } }
+    { return withLoc(new AST.Number(parseFloat(text()))) }
 
 numberexp
   = [eE] ("-" / "+")? [0-9]+
@@ -271,19 +293,19 @@ numberint
 // TODO: handle escaping, treat differently from one another
 string
   = "\"" chars:[^"]* "\"" {
-    return { type: "string", content: chars.join(""), ...loc() }
+    return withLoc(new AST.String(chars.join("")))
   }
 
 // TODO: handle escaping, treat differently from one another
 stringraw
   = "`" chars:[^`]* "`" {
-    return { type: "string", content: chars.join(""), ...loc() }
+    return withLoc(new AST.String(chars.join("")))
   }
 
 // TODO: handle escaping, treat differently from one another
 stringchar
   = "'" chars:[^']* "'" {
-    return { type: "char", content: chars.join(""), ...loc() }
+    return withLoc(new AST.Char(chars.join("")))
   }
 
 ///
@@ -291,7 +313,7 @@ stringchar
 
 comment "comment"
   = commentbegin chars:commentchar+ commentend
-    { return { type: "comment", content: chars.join(""), ...loc() } }
+    { return withLoc(new AST.Comment(chars.join(""))) }
 
 commentchar
   = !commentend char:anychar { return char }

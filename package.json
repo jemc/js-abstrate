@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "test": "mocha -r ts-node/register test/**/*.test.ts",
-    "gen": "sh -c 'cd src && pegjs --plugin ts-pegjs -o go.parse.ts go.parse.pegjs'",
+    "gen": "sh -c 'cd src && pegjs --plugin ts-pegjs --extra-options-file go.pegconfig.json -o go.parse.ts go.parse.pegjs'",
     "build": "npm run gen && tsc",
     "prepare": "npm run build"
   },
