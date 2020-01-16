@@ -557,31 +557,33 @@ describe("Abstrate.go.parse", () => {
             "finalOffset": 13
           }
         ],
-        "elseBody": {
-          "type": "if",
-          "term": {
-            "type": "dot",
-            "of": {
-              "type": "root",
+        "elseBody": [
+            {
+            "type": "if",
+            "term": {
+              "type": "dot",
+              "of": {
+                "type": "root",
+                "beginOffset": 23,
+                "finalOffset": 25
+              },
+              "name": "Y",
               "beginOffset": 23,
               "finalOffset": 25
             },
-            "name": "Y",
-            "beginOffset": 23,
-            "finalOffset": 25
+            "body": [
+              {
+                "type": "text",
+                "content": "false",
+                "beginOffset": 27,
+                "finalOffset": 32
+              }
+            ],
+            "elseBody": [],
+            "beginOffset": 20,
+            "finalOffset": 37
           },
-          "body": [
-            {
-              "type": "text",
-              "content": "false",
-              "beginOffset": 27,
-              "finalOffset": 32
-            }
-          ],
-          "elseBody": [],
-          "beginOffset": 20,
-          "finalOffset": 37
-        },
+        ],
         "beginOffset": 2,
         "finalOffset": 37
       }
@@ -620,55 +622,59 @@ describe("Abstrate.go.parse", () => {
             "finalOffset": 11
           }
         ],
-        "elseBody": {
-          "type": "if",
-          "term": {
-            "type": "dot",
-            "of": {
-              "type": "root",
-              "beginOffset": 21,
-              "finalOffset": 23
-            },
-            "name": "Y",
-            "beginOffset": 21,
-            "finalOffset": 23
-          },
-          "body": [
-            {
-              "type": "text",
-              "content": "Y",
-              "beginOffset": 25,
-              "finalOffset": 26
-            }
-          ],
-          "elseBody": {
+        "elseBody": [
+          {
             "type": "if",
             "term": {
               "type": "dot",
               "of": {
                 "type": "root",
-                "beginOffset": 36,
-                "finalOffset": 38
+                "beginOffset": 21,
+                "finalOffset": 23
               },
-              "name": "Z",
-              "beginOffset": 36,
-              "finalOffset": 38
+              "name": "Y",
+              "beginOffset": 21,
+              "finalOffset": 23
             },
             "body": [
               {
                 "type": "text",
-                "content": "Z",
-                "beginOffset": 40,
-                "finalOffset": 41
+                "content": "Y",
+                "beginOffset": 25,
+                "finalOffset": 26
               }
             ],
-            "elseBody": [],
-            "beginOffset": 33,
+            "elseBody": [
+                {
+                "type": "if",
+                "term": {
+                  "type": "dot",
+                  "of": {
+                    "type": "root",
+                    "beginOffset": 36,
+                    "finalOffset": 38
+                  },
+                  "name": "Z",
+                  "beginOffset": 36,
+                  "finalOffset": 38
+                },
+                "body": [
+                  {
+                    "type": "text",
+                    "content": "Z",
+                    "beginOffset": 40,
+                    "finalOffset": 41
+                  }
+                ],
+                "elseBody": [],
+                "beginOffset": 33,
+                "finalOffset": 46
+              },
+            ],
+            "beginOffset": 18,
             "finalOffset": 46
           },
-          "beginOffset": 18,
-          "finalOffset": 46
-        },
+        ],
         "beginOffset": 3,
         "finalOffset": 46
       },

@@ -46,6 +46,24 @@ describe("Abstrate.go.render", () => {
     assert.equal(result, "Yo, World!")
   })
 
+  it("renders else-if blocks based on boolean conditions", () => {
+    var result
+    const template =
+      "{{if .Red}}#ff0000{{else if .Blue}}#0000ff{{else}}#000000{{end}}"
+
+    result = Abstrate.go.render(template, { Red: true, Blue: false })
+    assert.equal(result, "#ff0000")
+
+    result = Abstrate.go.render(template, { Red: true, Blue: true })
+    assert.equal(result, "#ff0000")
+
+    result = Abstrate.go.render(template, { Red: false, Blue: true })
+    assert.equal(result, "#0000ff")
+
+    result = Abstrate.go.render(template, { Red: false, Blue: false })
+    assert.equal(result, "#000000")
+  })
+
   it("renders text blocks in a range-based loop", () => {
     var result
     const template =

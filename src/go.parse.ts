@@ -234,7 +234,7 @@ function peg$parse(input: string, options?: IParseOptions) {
   const peg$c32 = function(term: any, body: any, elseBody: any): any { return withLoc(new AST.If(term, body, elseBody || [])) };
   const peg$c33 = "else ";
   const peg$c34 = peg$literalExpectation("else ", false);
-  const peg$c35 = function(term: any, body: any, elseBody: any): any { return withLoc(new AST.If(term, body, elseBody)) };
+  const peg$c35 = function(term: any, body: any, elseIf: any): any { return withLoc(new AST.If(term, body, [elseIf])) };
   const peg$c36 = peg$otherExpectation("range block");
   const peg$c37 = "range";
   const peg$c38 = peg$literalExpectation("range", false);

@@ -129,8 +129,8 @@ ifblock "if block"
     { return withLoc(new AST.If(term, body, elseBody || [])) }
 
 ifelseifblock
-  = "if" term:expr body:blockbody ws "else " ws elseBody:ifblock
-    { return withLoc(new AST.If(term, body, elseBody)) }
+  = "if" term:expr body:blockbody ws "else " ws elseIf:ifblock
+    { return withLoc(new AST.If(term, body, [elseIf])) }
 
 rangeblock "range block"
   = rangewithdeclareindexandvalueblock
