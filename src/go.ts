@@ -1,15 +1,15 @@
-import { parse as goParse } from "./go.parse"
-import goBuiltin from "./go.builtin"
-import goInterpret from "./go.interpret"
-import goHtmlEscape from "./go.htmlEscape"
-import goRender from "./go.render"
+import { parse } from "./go.parse"
+import { builtin } from "./go.builtin"
+import { interpret } from "./go.interpret"
+import { htmlEscape } from "./go.htmlEscape"
+import { render } from "./go.render"
 
 export const go = {
-  parse: goParse,
-  builtin: goBuiltin,
-  interpret: goInterpret,
-  htmlEscape: goHtmlEscape,
-  render: goRender,
+  parse: parse,
+  builtin: builtin,
+  interpret: interpret,
+  htmlEscape: htmlEscape,
+  render: render,
 }
 
 export default go

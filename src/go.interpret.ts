@@ -1,8 +1,5 @@
 import * as AST from './go.ast';
 
-export const Interpret: any = {}
-export default Interpret
-
 export interface InterpretRuntime {
   builtin: {[key: string]: any}
   variableScopes: Array<{[key: string]: any}>
@@ -15,7 +12,7 @@ export interface InterpretResult {
 }
 
 // To escape a result, invoke the escapeFn function unless instructed not to.
-Interpret._maybeEscape = (result: InterpretResult, runtime: InterpretRuntime): string => {
+function _maybeEscape(result: InterpretResult, runtime: InterpretRuntime): string {
   if (result.value.alreadyEscaped) {
     return result.value.escaped
   } else {
@@ -24,30 +21,30 @@ Interpret._maybeEscape = (result: InterpretResult, runtime: InterpretRuntime): s
 }
 
 // To interpret a scope, begin the scope, interpret the body, and end the scope.
-Interpret.scope = (nodes: Array<AST.Any>, data: any, runtime: InterpretRuntime): InterpretResult => {
+export function interpretScope(nodes: Array<AST.Any>, data: any, runtime: InterpretRuntime): InterpretResult {
   runtime.variableScopes.unshift({})
-  const result = Interpret.body(nodes, data, runtime)
+  const result = interpretBody(nodes, data, runtime)
   runtime.variableScopes.shift()
   return result
 }
 
 // To interpret a body, interpret the nodes then flatten them to a string value.
-Interpret.body = (nodes: Array<AST.Any>, data: any, runtime: InterpretRuntime): InterpretResult => {
+export function interpretBody(nodes: Array<AST.Any>, data: any, runtime: InterpretRuntime): InterpretResult {
   const escapedValue =
-    Interpret.nodes(nodes, data, runtime).reduce((accum: string, chunk: InterpretResult) => {
-      return accum + Interpret._maybeEscape(chunk, runtime)
+    interpretNodes(nodes, data, runtime).reduce((accum: string, chunk: InterpretResult) => {
+      return accum + _maybeEscape(chunk, runtime)
     }, "")
   const value = { alreadyEscaped: true, escaped: escapedValue }
   return { value: value, from: nodes }
 }
 
 // To interpret a list of nodes, interpret each node and return the list.
-Interpret.nodes = (nodes: Array<AST.Any>, data: any, runtime: InterpretRuntime) => {
-  return nodes.map((node) => { return Interpret.node(node, data, runtime) })
+export function interpretNodes(nodes: Array<AST.Any>, data: any, runtime: InterpretRuntime) {
+  return nodes.map((node) => { return interpretNode(node, data, runtime) })
 }
 
 // To interpret a node, delegate to the type-specific function for that node.
-Interpret.node = (node: AST.Any, data: any, runtime: InterpretRuntime): InterpretResult => {
+export function interpretNode(node: AST.Any, data: any, runtime: InterpretRuntime): InterpretResult {
   const fn = AST.visitor<any>({
     // A text node returns the raw text content of the node (a string).
     // The trimLeft/trimRight options specify to trim leading/trailing whitespace.
@@ -77,7 +74,7 @@ Interpret.node = (node: AST.Any, data: any, runtime: InterpretRuntime): Interpre
     // Throws an error if a variable with this name was already declared.
     // Returns an empty string, so as not to affect the template output.
     declare(node) {
-      const value = Interpret.node(node.value, data, runtime).value
+      const value = interpretNode(node.value, data, runtime).value
       // We always declare a variable in the current (innermost) scope in the stack.
       const variables = runtime.variableScopes[0]
       variables[node.name] = value
@@ -88,7 +85,7 @@ Interpret.node = (node: AST.Any, data: any, runtime: InterpretRuntime): Interpre
     // Throws an error if no variable with this name was already declared.
     // Returns an empty string, so as not to affect the template output.
     assign(node) {
-      const value = Interpret.node(node.value, data, runtime).value
+      const value = interpretNode(node.value, data, runtime).value
       // Search each variable scope in the stack, starting with the innermost scope.
       for (const variables of runtime.variableScopes) {
         // If this is the scope where the variable is, assign the value and return.
@@ -116,15 +113,15 @@ Interpret.node = (node: AST.Any, data: any, runtime: InterpretRuntime): Interpre
 
     // A block block interprets the body of the block in a nested scope.
     block(node) {
-      return Interpret.scope(node.body, data, runtime).value
+      return interpretScope(node.body, data, runtime).value
     },
 
     // An if block interprets either the body or elseBody, based on its term.
     if(node) {
-      if (Interpret.node(node.term, data, runtime).value) {
-        return Interpret.scope(node.body, data, runtime).value
+      if (interpretNode(node.term, data, runtime).value) {
+        return interpretScope(node.body, data, runtime).value
       } else {
-        return Interpret.scope(node.elseBody, data, runtime).value
+        return interpretScope(node.elseBody, data, runtime).value
       }
     },
 
@@ -133,7 +130,7 @@ Interpret.node = (node: AST.Any, data: any, runtime: InterpretRuntime): Interpre
     // If there are zero elements, the elseBody is interpreted instead.
     // Throws an error if the term is not an array.
     range(node) {
-      const list = Interpret.node(node.term, data, runtime).value
+      const list = interpretNode(node.term, data, runtime).value
       if (Array.isArray(list)) {
         if (list.length > 0) {
           let index = 0
@@ -148,13 +145,13 @@ Interpret.node = (node: AST.Any, data: any, runtime: InterpretRuntime): Interpre
               index = index + 1
             }
             runtime.variableScopes.unshift(extraVars)
-            const chunk = Interpret.scope(node.body, element, runtime)
-            escapedValue = escapedValue + Interpret._maybeEscape(chunk, runtime)
+            const chunk = interpretScope(node.body, element, runtime)
+            escapedValue = escapedValue + _maybeEscape(chunk, runtime)
             runtime.variableScopes.shift()
           })
           return { alreadyEscaped: true, escaped: escapedValue }
         } else {
-          return Interpret.scope(node.elseBody, data, runtime).value
+          return interpretScope(node.elseBody, data, runtime).value
         }
       } else {
         throw new Error("can't range over a value that is not an array: " +
@@ -164,7 +161,7 @@ Interpret.node = (node: AST.Any, data: any, runtime: InterpretRuntime): Interpre
 
     // A dot node returns the named member of the data passed in.
     dot(node) {
-      const object = Interpret.node(node.of, data, runtime).value
+      const object = interpretNode(node.of, data, runtime).value
       if (typeof object === "object" && node.name in object) {
         return object[node.name]
       } else {
@@ -185,10 +182,10 @@ Interpret.node = (node: AST.Any, data: any, runtime: InterpretRuntime): Interpre
 
     // An invoke node calls its target as a function with the given args' values.
     invoke(node) {
-      const target = Interpret.node(node.target, data, runtime).value
+      const target = interpretNode(node.target, data, runtime).value
       if (typeof target === "function") {
         const args = node.args.map((arg: AST.Any) => {
-          return Interpret.node(arg, data, runtime).value
+          return interpretNode(arg, data, runtime).value
         })
         return Reflect.apply(target, undefined, args)
       } else {
@@ -203,16 +200,20 @@ Interpret.node = (node: AST.Any, data: any, runtime: InterpretRuntime): Interpre
     pipe(node) {
       if (node.to.type === "invoke") {
         const invoke = node.to
-        return Interpret.node({
+        return interpretNode({
           type: "invoke",
           target: invoke.target,
           args: [...invoke.args, node.from],
+          beginOffset: node.beginOffset,
+          finalOffset: node.finalOffset,
         }, data, runtime).value
       } else {
-        return Interpret.node({
+        return interpretNode({
           type: "invoke",
           target: node.to,
           args: [node.from],
+          beginOffset: node.beginOffset,
+          finalOffset: node.finalOffset,
         }, data, runtime).value
       }
     },
@@ -230,3 +231,12 @@ Interpret.node = (node: AST.Any, data: any, runtime: InterpretRuntime): Interpre
 
   return { value: fn(node), from: node }
 }
+
+export const interpret = {
+  scope: interpretScope,
+  body: interpretBody,
+  nodes: interpretNodes,
+  node: interpretNode,
+}
+
+export default interpret

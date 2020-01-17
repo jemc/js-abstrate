@@ -48,6 +48,7 @@ export const builtin = {
     return result
   },
 }
+export default builtin
 
 // Returns a RegExp pattern that matches a valid printf format specifier.
 function printfFormatSpecPattern() {
@@ -64,5 +65,3 @@ function printfFormatSpecReplace(formatSpec: string, arg: any) {
     throw new Error("NOT IMPLEMENTED: printf format specifier: " + formatSpec)
   }
 }
-
-export default builtin
