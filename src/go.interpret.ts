@@ -3,14 +3,19 @@ import * as AST from './go.ast';
 export const Interpret: any = {}
 export default Interpret
 
-export interface IGoInterpretRuntime {
-  builtin: object
-  variableScopes: Array<object>
-  escapeFn(string: string, node: any): string
+export interface InterpretRuntime {
+  builtin: {[key: string]: any}
+  variableScopes: Array<{[key: string]: any}>
+  escapeFn(string: string, node: AST.Any | Array<AST.Any>): string
+}
+
+export interface InterpretResult {
+  value: any
+  from: AST.Any | Array<AST.Any>
 }
 
 // To escape a result, invoke the escapeFn function unless instructed not to.
-Interpret._maybeEscape = (result: any, runtime: IGoInterpretRuntime) => {
+Interpret._maybeEscape = (result: InterpretResult, runtime: InterpretRuntime): string => {
   if (result.value.alreadyEscaped) {
     return result.value.escaped
   } else {
@@ -19,7 +24,7 @@ Interpret._maybeEscape = (result: any, runtime: IGoInterpretRuntime) => {
 }
 
 // To interpret a scope, begin the scope, interpret the body, and end the scope.
-Interpret.scope = (nodes: Array<AST.Any>, data: any, runtime: IGoInterpretRuntime) => {
+Interpret.scope = (nodes: Array<AST.Any>, data: any, runtime: InterpretRuntime): InterpretResult => {
   runtime.variableScopes.unshift({})
   const result = Interpret.body(nodes, data, runtime)
   runtime.variableScopes.shift()
@@ -27,9 +32,9 @@ Interpret.scope = (nodes: Array<AST.Any>, data: any, runtime: IGoInterpretRuntim
 }
 
 // To interpret a body, interpret the nodes then flatten them to a string value.
-Interpret.body = (nodes: Array<AST.Any>, data: any, runtime: IGoInterpretRuntime) => {
+Interpret.body = (nodes: Array<AST.Any>, data: any, runtime: InterpretRuntime): InterpretResult => {
   const escapedValue =
-    Interpret.nodes(nodes, data, runtime).reduce((accum: string, chunk: any) => {
+    Interpret.nodes(nodes, data, runtime).reduce((accum: string, chunk: InterpretResult) => {
       return accum + Interpret._maybeEscape(chunk, runtime)
     }, "")
   const value = { alreadyEscaped: true, escaped: escapedValue }
@@ -37,12 +42,12 @@ Interpret.body = (nodes: Array<AST.Any>, data: any, runtime: IGoInterpretRuntime
 }
 
 // To interpret a list of nodes, interpret each node and return the list.
-Interpret.nodes = (nodes: Array<AST.Any>, data: any, runtime: IGoInterpretRuntime) => {
+Interpret.nodes = (nodes: Array<AST.Any>, data: any, runtime: InterpretRuntime) => {
   return nodes.map((node) => { return Interpret.node(node, data, runtime) })
 }
 
 // To interpret a node, delegate to the type-specific function for that node.
-Interpret.node = (node: AST.Any, data: any, runtime: IGoInterpretRuntime) => {
+Interpret.node = (node: AST.Any, data: any, runtime: InterpretRuntime): InterpretResult => {
   const fn = AST.visitor<any>({
     // A text node returns the raw text content of the node (a string).
     // The trimLeft/trimRight options specify to trim leading/trailing whitespace.
@@ -74,7 +79,7 @@ Interpret.node = (node: AST.Any, data: any, runtime: IGoInterpretRuntime) => {
     declare(node) {
       const value = Interpret.node(node.value, data, runtime).value
       // We always declare a variable in the current (innermost) scope in the stack.
-      const variables: any = runtime.variableScopes[0]
+      const variables = runtime.variableScopes[0]
       variables[node.name] = value
       return ""
     },
@@ -88,7 +93,7 @@ Interpret.node = (node: AST.Any, data: any, runtime: IGoInterpretRuntime) => {
       for (const variables of runtime.variableScopes) {
         // If this is the scope where the variable is, assign the value and return.
         if (node.name in variables) {
-          (variables as any)[node.name] = value
+          variables[node.name] = value
           return ""
         }
       }
@@ -102,7 +107,7 @@ Interpret.node = (node: AST.Any, data: any, runtime: IGoInterpretRuntime) => {
       for (const variables of runtime.variableScopes) {
         // If this is the scope where the variable is, return the current value.
         if (node.name in variables) {
-          return (variables as any)[node.name]
+          return variables[node.name]
         }
       }
       // If we reach this, we didn't find the variable in the entire scope stack.
@@ -134,12 +139,12 @@ Interpret.node = (node: AST.Any, data: any, runtime: IGoInterpretRuntime) => {
           let index = 0
           let escapedValue = ""
           list.forEach((element) => {
-            const extraVars = {}
+            const extraVars: {[key: string]: any} = {}
             if (node.declareValue) {
-              (extraVars as any)[node.declareValue.name] = element
+              extraVars[node.declareValue.name] = element
             }
             if (node.declareIndex) {
-              (extraVars as any)[node.declareIndex.name] = index
+              extraVars[node.declareIndex.name] = index
               index = index + 1
             }
             runtime.variableScopes.unshift(extraVars)
@@ -171,7 +176,7 @@ Interpret.node = (node: AST.Any, data: any, runtime: IGoInterpretRuntime) => {
     // A builtin node retrieves a given named thing from the runtime.
     builtin(node) {
       if (node.name in runtime.builtin) {
-        return (runtime.builtin as any)[node.name]
+        return runtime.builtin[node.name]
       } else {
         throw new Error("builtin \"" + node.name + "\" not found within runtime: " +
           JSON.stringify(runtime))
@@ -182,7 +187,7 @@ Interpret.node = (node: AST.Any, data: any, runtime: IGoInterpretRuntime) => {
     invoke(node) {
       const target = Interpret.node(node.target, data, runtime).value
       if (typeof target === "function") {
-        const args = node.args.map((arg: any) => {
+        const args = node.args.map((arg: AST.Any) => {
           return Interpret.node(arg, data, runtime).value
         })
         return Reflect.apply(target, undefined, args)

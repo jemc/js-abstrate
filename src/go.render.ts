@@ -1,3 +1,4 @@
+import * as AST from './go.ast'
 import { parse as goParse } from "./go.parse"
 import goBuiltin from "./go.builtin"
 import goInterpret from "./go.interpret"
@@ -14,7 +15,7 @@ function render(template: string, data: object, opts: IGoRenderOptions = {}) {
     variableScopes: [opts.variables || {}],
     escapeFn: opts.escapeFn || ((string, node) => { return string }),
   }
-  const nodes: Array<any> = goParse(template)
+  const nodes: Array<AST.Any> = goParse(template)
   return goInterpret.body(nodes, data, runtime).value.escaped
 }
 
