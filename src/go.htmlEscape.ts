@@ -1,11 +1,12 @@
 import * as hyntax from "hyntax"
+import * as AST from "./go.ast"
 
 export function htmlEscape(template: string) {
   // First, tokenize the template string into HTML syntax tokens.
   // These will be used to figure out where we are (syntactically) in the HTML.
   const tokens = hyntax.tokenize(template).tokens
 
-  return (string: string, node: any) => {
+  return (string: string, node: AST.Any | Array<AST.Any>) => {
     // Find the first token which encompasses the begin offset of this AST node.
     // We also have some closure side-effects here for tracking some state
     // based on recent tokens occurring just prior to the token that we find.
@@ -16,9 +17,13 @@ export function htmlEscape(template: string) {
         lastAttrName = token.content
       }
 
+      // Get the beginning offset from the node or list of nodes.
+      const beginOffset =
+        (Array.isArray(node)) ? node[0].beginOffset : node.beginOffset
+
       // Return true if this token encompasses the beginning of this AST node.
-      return token.endPosition > node.beginOffset
-        && token.startPosition < node.beginOffset
+      return token.endPosition > beginOffset
+        && token.startPosition < beginOffset
     })!
 
     // Based on the token type we found, use the correct escaping approach.

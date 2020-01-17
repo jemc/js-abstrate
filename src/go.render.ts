@@ -6,7 +6,7 @@ import { interpret } from "./go.interpret"
 export interface IGoRenderOptions {
   functions?: object
   variables?: object
-  escapeFn?: (string: string, node: any) => string
+  escapeFn?: (string: string, node: AST.Any | Array<AST.Any>) => string
 }
 
 export function render(template: string, data: object, opts: IGoRenderOptions = {}) {
