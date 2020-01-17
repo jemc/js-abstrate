@@ -3008,16 +3008,6 @@ function peg$parse(input: string, options?: IParseOptions) {
   }
 
 
-    // Define a convenience function for "spreading" location info into a node.
-    // (i.e. `...loc()`)
-    function loc() {
-      const loc = location()
-      return {
-        beginOffset: loc.start.offset,
-        finalOffset: loc.end.offset,
-      }
-    }
-
     function withLoc(node: any) {
       const loc = location()
       node.beginOffset = loc.start.offset
