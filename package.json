@@ -32,7 +32,7 @@
   "homepage": "https://github.com/jemc/js-abstrate#readme",
   "devDependencies": {
     "@types/mocha": "^5.2.7",
-    "mocha": "^6.2.2",
+    "mocha": "^10.2.0",
     "pegjs": "^0.10.0",
     "semantic-release": "^15.13.31",
     "ts-node": "^8.5.4",
